@@ -15,6 +15,12 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    //Binds all the elements at the same time
+    buildFeatures{
+        viewBinding true
+    }
+
+
     buildTypes {
         release {
             minifyEnabled false

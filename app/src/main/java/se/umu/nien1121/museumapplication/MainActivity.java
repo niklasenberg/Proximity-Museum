@@ -20,6 +20,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.ParcelUuid;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.View;
 
 import java.nio.ByteBuffer;
@@ -52,8 +53,10 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onLeScan(final BluetoothDevice device, int rssi,
                                      byte[] scanRecord) {
-                    //Log.d("MainActivity", Arrays.toString(scanRecord));
-                    //Log.d("MainActivity", device.);
+                    // Log.d("ScanRecord", scanRecord.toString());
+                    if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                    }
+                    Log.d("MainActivity", device.getAddress());
 
                     if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
 
@@ -62,17 +65,32 @@ public class MainActivity extends AppCompatActivity {
 
                     if (uuids != null) {
                         for (ParcelUuid parcelUuid : uuids) {
-                            Log.d("MainActivity", parcelUuid.getUuid().toString();
+                            //Log.d("MainActivity", parcelUuid.getUuid().toString());
                         }
                     }
                 }
             };
 
-    protected ScanCallback mScanCallback = new ScanCallback() {
+    protected final ScanCallback mScanCallback = new ScanCallback() {
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
             ScanRecord mScanRecord = result.getScanRecord();
-            Log.d("MainActivity", mScanRecord.toString());
+            SparseArray<byte[]> data = mScanRecord.getManufacturerSpecificData();
+            //Log.d("Scanrecord", data.toString());
+
+            if (data.valueAt(0) != null && data.size() != 0) {
+                byte[] datavalue = data.valueAt(0);
+                if (datavalue != null && datavalue.length != 0) {
+                    String msg = "payload = ";
+                    for (byte b : datavalue)
+                        msg += String.format("%02x ", b);
+                    Log.d("Scanrecord", msg);
+                }
+            }
+
+
+
+            // Log.d("MainActivity", mScanRecord.toString());
 
             /*
             List<ParcelUuid> uuids = mScanRecord.getServiceUuids();
@@ -89,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onScanFailed(int errorCode) {
-            //Log.d("MainActivity", "onScanFailed() " + errorCode);
+            Log.d("MainActivity", "onScanFailed() " + errorCode);
         }
     };
 
@@ -113,7 +131,8 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("MainActivity", "Granted, börjar scanna");
                 setScanSettings();
                 scanFilters();
-                bluetoothAdapter.startLeScan(mLeScanCallback);
+                //bluetoothAdapter.startLeScan(mLeScanCallback);
+                bluetoothLeScanner.startScan(scanFilters, mScanSettings, mScanCallback);
 
             }
         });

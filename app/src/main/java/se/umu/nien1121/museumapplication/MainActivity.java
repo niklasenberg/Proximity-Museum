@@ -23,6 +23,7 @@ import android.util.Log;
 import android.view.View;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -44,17 +45,51 @@ public class MainActivity extends AppCompatActivity {
     private BluetoothAdapter bluetoothAdapter;
     private BluetoothLeScanner bluetoothLeScanner;
     private ScanSettings mScanSettings;
+    private List<ScanFilter> scanFilters;
+
+    private BluetoothAdapter.LeScanCallback mLeScanCallback =
+            new BluetoothAdapter.LeScanCallback() {
+                @Override
+                public void onLeScan(final BluetoothDevice device, int rssi,
+                                     byte[] scanRecord) {
+                    //Log.d("MainActivity", Arrays.toString(scanRecord));
+                    //Log.d("MainActivity", device.);
+
+                    if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+
+                    }
+                    ParcelUuid[] uuids = device.getUuids();
+
+                    if (uuids != null) {
+                        for (ParcelUuid parcelUuid : uuids) {
+                            Log.d("MainActivity", parcelUuid.getUuid().toString();
+                        }
+                    }
+                }
+            };
 
     protected ScanCallback mScanCallback = new ScanCallback() {
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
             ScanRecord mScanRecord = result.getScanRecord();
+            Log.d("MainActivity", mScanRecord.toString());
+
+            /*
             List<ParcelUuid> uuids = mScanRecord.getServiceUuids();
-            for (ParcelUuid parcelUuid : uuids) {
-                System.out.println(parcelUuid.getUuid());
-                Log.d("MainActivity", parcelUuid.getUuid().toString());
+
+            if (uuids != null) {
+                for (ParcelUuid parcelUuid : uuids) {
+                    System.out.println(parcelUuid.getUuid());
+                    Log.d("MainActivity", parcelUuid.getUuid().toString());
+                }
             }
-            //int mRssi = result.getRssi();
+            //Log.d("MainActivity", "enhet hittad, men inga uuids");
+            //int mRssi = result.getRssi(); */
+        }
+
+        @Override
+        public void onScanFailed(int errorCode) {
+            //Log.d("MainActivity", "onScanFailed() " + errorCode);
         }
     };
 
@@ -70,11 +105,16 @@ public class MainActivity extends AppCompatActivity {
 
         binding.scanBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                Log.d("Tora", "Börjar scanna");
+
                 if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.BLUETOOTH) != PackageManager.PERMISSION_GRANTED) {
                     ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.BLUETOOTH}, 0);
+                    Log.d("MainActivity", "Premission not granted");
                 }
-                bluetoothLeScanner.startScan(mScanCallback);
+                Log.d("MainActivity", "Granted, börjar scanna");
+                setScanSettings();
+                scanFilters();
+                bluetoothAdapter.startLeScan(mLeScanCallback);
+
             }
         });
     }
@@ -85,4 +125,12 @@ public class MainActivity extends AppCompatActivity {
         mBuilder.setScanMode(ScanSettings.SCAN_MODE_LOW_POWER);
         mScanSettings = mBuilder.build();
     }
+
+    private void scanFilters() {
+        scanFilters = new ArrayList<>();
+        ScanFilter scanFilterName = new ScanFilter.Builder().setManufacturerData(76, null).build();
+        scanFilters.add(scanFilterName);
+    }
+
+
 }

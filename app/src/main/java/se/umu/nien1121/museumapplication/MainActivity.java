@@ -9,7 +9,10 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
+import android.bluetooth.le.ScanFilter;
+import android.bluetooth.le.ScanRecord;
 import android.bluetooth.le.ScanResult;
+import android.bluetooth.le.ScanSettings;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -19,8 +22,10 @@ import android.os.ParcelUuid;
 import android.util.Log;
 import android.view.View;
 
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 import br.edu.uepb.nutes.simpleblescanner.SimpleBleScanner;
 import br.edu.uepb.nutes.simpleblescanner.SimpleScannerCallback;
@@ -34,12 +39,24 @@ public class MainActivity extends AppCompatActivity {
     /*   private boolean scanning;
        private Handler handler = new Handler();
        private BluetoothManager bluetoothManager;
-       private BluetoothAdapter bluetoothAdapter;
-       private BluetoothLeScanner bluetoothLeScanner;
        private final int REQUEST_ENABLE_BT = 1; */
     private ActivityMainBinding binding;
-    private SimpleBleScanner mScanner;
+    private BluetoothAdapter bluetoothAdapter;
+    private BluetoothLeScanner bluetoothLeScanner;
+    private ScanSettings mScanSettings;
 
+    protected ScanCallback mScanCallback = new ScanCallback() {
+        @Override
+        public void onScanResult(int callbackType, ScanResult result) {
+            ScanRecord mScanRecord = result.getScanRecord();
+            List<ParcelUuid> uuids = mScanRecord.getServiceUuids();
+            for (ParcelUuid parcelUuid : uuids) {
+                System.out.println(parcelUuid.getUuid());
+                Log.d("MainActivity", parcelUuid.getUuid().toString());
+            }
+            //int mRssi = result.getRssi();
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,146 +64,25 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        ActivityCompat.requestPermissions(
-                this,
-                new String[]
-                        {
-                                Manifest.permission.ACCESS_FINE_LOCATION,
-                                Manifest.permission.ACCESS_COARSE_LOCATION,
-                                Manifest.permission.ACCESS_BACKGROUND_LOCATION,
-                                Manifest.permission.BLUETOOTH_CONNECT,
-                        }, 0);
-
-        mScanner = new SimpleBleScanner.Builder()
-                .addScanPeriod(SCAN_PERIOD) // 10s in milliseconds
-                .build();
-
-/*
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            bluetoothManager = getSystemService(BluetoothManager.class);
-            System.out.println("Hit");
-        }
-        bluetoothAdapter = bluetoothManager.getAdapter();
-        if (!bluetoothAdapter.isEnabled()) {
-            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE); //Skickas till inbyggd aktivitetshanterare
-
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-                // TODO: Consider calling
-                //    ActivityCompat#requestPermissions
-                // here to request the missing permissions, and then overriding
-                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                //                                          int[] grantResults)
-                // to handle the case where the user grants the permission. See the documentation
-                // for ActivityCompat#requestPermissions for more details.
-                return;
-            }
-            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-        } else {
-            Log.d("Tora", "då");
-        }
-        bluetoothLeScanner = bluetoothAdapter.getBluetoothLeScanner(); */
+        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        bluetoothLeScanner = bluetoothAdapter.getBluetoothLeScanner();
 
 
         binding.scanBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                startScan();
                 Log.d("Tora", "Börjar scanna");
+                if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.BLUETOOTH) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.BLUETOOTH}, 0);
+                }
+                bluetoothLeScanner.startScan(mScanCallback);
             }
         });
     }
 
-    private void startScan() {
-        mScanner.startScan(new SimpleScannerCallback() {
-
-            @Override
-            public void onScanResult(int callbackType, ScanResult scanResult) throws SecurityException {
-                BluetoothDevice device = scanResult.getDevice();
-
-               // Log.d("MainActivity", "Hejhopp");
-               // Log.d("MainActivity", "Found Device: " + device.getAddress());
-
-                ParcelUuid[] uuids = device.getUuids();
-
-                if (uuids != null){
-                    for (ParcelUuid uuid: uuids) {
-                        Log.d("MainActivity", "UUID: " + uuid.getUuid().toString());
-                    }
-                }
-
-                //Log.d("MainActivity", "Found Device: " + device.getAddress());
-            }
-
-            @Override
-            public void onBatchScanResults(List<ScanResult> scanResults) {
-                Log.d("MainActivity", "onBatchScanResults(): "+ Arrays.toString(scanResults.toArray()));
-            }
-
-            @Override
-            public void onFinish() {
-                Log.d("MainActivity", "onFinish()");
-            }
-
-            @Override
-            public void onScanFailed(int errorCode) {
-                Log.d("MainActivity", "onScanFailed() " + errorCode);
-            }
-        });
+    private void setScanSettings() {
+        ScanSettings.Builder mBuilder = new ScanSettings.Builder();
+        mBuilder.setReportDelay(0);
+        mBuilder.setScanMode(ScanSettings.SCAN_MODE_LOW_POWER);
+        mScanSettings = mBuilder.build();
     }
-
-
-/*
-    private void scanLeDevice() {
-        if (!scanning) {
-
-            // Stops scanning after a predefined scan period.
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    scanning = false;
-
-                    //Ber om tillåtelse från användaren.
-                    if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
-                        // TODO: Consider calling
-                        //    ActivityCompat#requestPermissions
-                        // here to request the missing permissions, and then overriding
-                        //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                        //                                          int[] grantResults)
-                        // to handle the case where the user grants the permission. See the documentation
-                        // for ActivityCompat#requestPermissions for more details.
-                        return;
-                    }
-                    System.out.println("Scanning stoppad!");
-                    bluetoothLeScanner.stopScan(leScanCallback);
-                }
-            }, SCAN_PERIOD);
-
-            scanning = true;
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
-                // TODO: Consider calling
-                //    ActivityCompat#requestPermissions
-                // here to request the missing permissions, and then overriding
-                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                //                                          int[] grantResults)
-                // to handle the case where the user grants the permission. See the documentation
-                // for ActivityCompat#requestPermissions for more details.
-                return;
-            }
-            bluetoothLeScanner.startScan(leScanCallback);
-        } else {
-            scanning = false;
-            bluetoothLeScanner.stopScan(leScanCallback);
-        }
-    }
-
-
-    // Device scan callback.
-    private ScanCallback leScanCallback =
-            new ScanCallback() {
-                @Override
-                public void onScanResult(int callbackType, ScanResult result) {
-                    super.onScanResult(callbackType, result);
-                    System.out.println("Hittad!");
-                }
-            }; */
-
 }

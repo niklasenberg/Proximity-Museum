@@ -26,7 +26,10 @@ import android.view.View;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import br.edu.uepb.nutes.simpleblescanner.SimpleBleScanner;
@@ -47,62 +50,37 @@ public class MainActivity extends AppCompatActivity {
     private BluetoothLeScanner bluetoothLeScanner;
     private ScanSettings mScanSettings;
     private List<ScanFilter> scanFilters;
+    private LinkedHashSet<String> beacons = new LinkedHashSet<>();
+    private boolean scanning;
 
-    private BluetoothAdapter.LeScanCallback mLeScanCallback =
-            new BluetoothAdapter.LeScanCallback() {
-                @Override
-                public void onLeScan(final BluetoothDevice device, int rssi,
-                                     byte[] scanRecord) {
-                    // Log.d("ScanRecord", scanRecord.toString());
-                    if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-                    }
-                    Log.d("MainActivity", device.getAddress());
-
-                    if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-
-                    }
-                    ParcelUuid[] uuids = device.getUuids();
-
-                    if (uuids != null) {
-                        for (ParcelUuid parcelUuid : uuids) {
-                            //Log.d("MainActivity", parcelUuid.getUuid().toString());
-                        }
-                    }
-                }
-            };
 
     protected final ScanCallback mScanCallback = new ScanCallback() {
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
             ScanRecord mScanRecord = result.getScanRecord();
             SparseArray<byte[]> data = mScanRecord.getManufacturerSpecificData();
-            //Log.d("Scanrecord", data.toString());
 
-            if (data.valueAt(0) != null && data.size() != 0) {
+            //Fetch and decode UUID form byte to hexadecimal
+            if (data.size() != 0 && data.valueAt(0) != null) {
                 byte[] datavalue = data.valueAt(0);
-                if (datavalue != null && datavalue.length != 0) {
-                    String msg = "payload = ";
-                    for (byte b : datavalue)
-                        msg += String.format("%02x ", b);
-                    Log.d("Scanrecord", msg);
+
+                if (datavalue != null && datavalue.length == 23 && datavalue[0]==(byte)0x02 && datavalue[22] == (byte)0xc5) {
+                    StringBuilder sb = new StringBuilder();
+
+                    for (int i = 2 ; i < 18 ; i++){
+                        sb.append(String.format("%02x",datavalue[i]));
+                    }
+                    beacons.add(sb.toString());
                 }
+            } else {
+                Log.d("MainActivity", mScanRecord.toString());
             }
 
-
-
-            // Log.d("MainActivity", mScanRecord.toString());
-
-            /*
-            List<ParcelUuid> uuids = mScanRecord.getServiceUuids();
-
-            if (uuids != null) {
-                for (ParcelUuid parcelUuid : uuids) {
-                    System.out.println(parcelUuid.getUuid());
-                    Log.d("MainActivity", parcelUuid.getUuid().toString());
-                }
+            //Adds beacon uuid to linkedhashset
+            for (String s: beacons){
+                Log.d("MainActivity", "Beacon: " + s);
             }
-            //Log.d("MainActivity", "enhet hittad, men inga uuids");
-            //int mRssi = result.getRssi(); */
+
         }
 
         @Override
@@ -133,10 +111,25 @@ public class MainActivity extends AppCompatActivity {
                 scanFilters();
                 //bluetoothAdapter.startLeScan(mLeScanCallback);
                 bluetoothLeScanner.startScan(scanFilters, mScanSettings, mScanCallback);
+                scanning = true;
+
+                //testar lägga in scan period
+                if (!scanning) {
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
+                                return;
+                            }
+                            bluetoothLeScanner.stopScan(mScanCallback);
+                        }
+                    }, SCAN_PERIOD);
+                }
 
             }
         });
     }
+
 
     private void setScanSettings() {
         ScanSettings.Builder mBuilder = new ScanSettings.Builder();
@@ -148,6 +141,7 @@ public class MainActivity extends AppCompatActivity {
     private void scanFilters() {
         scanFilters = new ArrayList<>();
         ScanFilter scanFilterName = new ScanFilter.Builder().setManufacturerData(76, null).build();
+        //ScanFilter scanFilterTime = new ScanFilter.Builder()
         scanFilters.add(scanFilterName);
     }
 

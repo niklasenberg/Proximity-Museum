@@ -55,8 +55,11 @@ public class MainActivity extends AppCompatActivity {
         class RemindTask extends TimerTask {
             @SuppressLint("MissingPermission")
             public void run() {
-                bluetoothLeScanner.stopScan(mScanCallback);
+                if(bluetoothLeScanner != null) {
+                    bluetoothLeScanner.stopScan(mScanCallback);
+                }
                 System.out.println("Stoppa timer");
+                binding.scanBtn.setBackgroundColor(getResources().getColor(R.color.purple_500));
                 timer.cancel();
             }
         }
@@ -106,14 +109,16 @@ public class MainActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        bluetoothLeScanner = bluetoothAdapter.getBluetoothLeScanner();
+        if (bluetoothAdapter != null) {
+            bluetoothLeScanner = bluetoothAdapter.getBluetoothLeScanner();
+        }
 
 
         binding.scanBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
 
                 //times the scanning
-                new TimerClass(10);
+                new TimerClass(5);
                 if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.BLUETOOTH) != PackageManager.PERMISSION_GRANTED) {
                     ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.BLUETOOTH}, 0);
                     Log.d("MainActivity", "Premission not granted");
@@ -122,8 +127,12 @@ public class MainActivity extends AppCompatActivity {
                 setScanSettings();
                 scanFilters();
                 //bluetoothAdapter.startLeScan(mLeScanCallback);
-                bluetoothLeScanner.startScan(scanFilters, mScanSettings, mScanCallback);
-                scanning = true;
+                binding.scanBtn.setBackgroundColor(getResources().getColor(R.color.grey));
+                if (bluetoothLeScanner != null) {
+                    bluetoothLeScanner.startScan(scanFilters, mScanSettings, mScanCallback);
+                }
+                binding.scanBtn.setEnabled(false);
+                binding.scanBtn.setBackgroundColor(getResources().getColor(R.color.grey));
 
 
                /*

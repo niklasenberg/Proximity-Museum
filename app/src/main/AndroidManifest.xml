@@ -30,7 +30,8 @@
 
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
 
-    <uses-feature android:name="android.hardware.bluetooth_le" android:required="true"/>
+    <!-- Needed if our app uses Internet. -->
+    <uses-permission android:name="android.permission.INTERNET" />
 
 
 

@@ -4,7 +4,7 @@ const port = 3000
 
 app.get('/', (req, res) => {
     var id = req.query.id
-    res.send('Vad gör du din pissråtta?')
+    res.send('Api is running')
 })
 
 app.listen(port, () => {

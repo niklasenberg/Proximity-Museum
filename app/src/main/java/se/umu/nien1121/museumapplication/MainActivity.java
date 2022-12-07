@@ -4,36 +4,28 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothManager;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanFilter;
 import android.bluetooth.le.ScanRecord;
 import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
-import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.ParcelUuid;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
 
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.TreeMap;
 
-import br.edu.uepb.nutes.simpleblescanner.SimpleBleScanner;
-import br.edu.uepb.nutes.simpleblescanner.SimpleScannerCallback;
 import se.umu.nien1121.museumapplication.databinding.ActivityMainBinding;
 
 public class MainActivity extends AppCompatActivity {
@@ -53,6 +45,23 @@ public class MainActivity extends AppCompatActivity {
     private LinkedHashSet<String> beacons = new LinkedHashSet<>();
     private boolean scanning;
 
+    public class TimerClass {
+        Timer timer = new Timer();
+
+        TimerClass(int seconds) {
+            timer.schedule(new RemindTask(), seconds * 1000);
+        }
+
+        class RemindTask extends TimerTask {
+            @SuppressLint("MissingPermission")
+            public void run() {
+                bluetoothLeScanner.stopScan(mScanCallback);
+                System.out.println("Stoppa timer");
+                timer.cancel();
+            }
+        }
+    }
+
 
     protected final ScanCallback mScanCallback = new ScanCallback() {
         @Override
@@ -64,20 +73,21 @@ public class MainActivity extends AppCompatActivity {
             if (data.size() != 0 && data.valueAt(0) != null) {
                 byte[] datavalue = data.valueAt(0);
 
-                if (datavalue != null && datavalue.length == 23 && datavalue[0]==(byte)0x02 && datavalue[22] == (byte)0xc5) {
+                if (datavalue != null && datavalue.length == 23 && datavalue[0] == (byte) 0x02 && datavalue[22] == (byte) 0xc5) {
                     StringBuilder sb = new StringBuilder();
 
-                    for (int i = 2 ; i < 18 ; i++){
-                        sb.append(String.format("%02x",datavalue[i]));
+                    for (int i = 2; i < 18; i++) {
+                        sb.append(String.format("%02x", datavalue[i]));
                     }
-                    beacons.add(sb.toString());
+                   beacons.add(sb.toString());
+
                 }
             } else {
                 Log.d("MainActivity", mScanRecord.toString());
             }
 
             //Adds beacon uuid to linkedhashset
-            for (String s: beacons){
+            for (String s : beacons) {
                 Log.d("MainActivity", "Beacon: " + s);
             }
 
@@ -102,6 +112,8 @@ public class MainActivity extends AppCompatActivity {
         binding.scanBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
 
+                //times the scanning
+                new TimerClass(10);
                 if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.BLUETOOTH) != PackageManager.PERMISSION_GRANTED) {
                     ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.BLUETOOTH}, 0);
                     Log.d("MainActivity", "Premission not granted");
@@ -113,9 +125,12 @@ public class MainActivity extends AppCompatActivity {
                 bluetoothLeScanner.startScan(scanFilters, mScanSettings, mScanCallback);
                 scanning = true;
 
-                //testar lägga in scan period
+
+               /*
+                //Testar lägga in scan period
                 if (!scanning) {
                     new Handler().postDelayed(new Runnable() {
+
                         @Override
                         public void run() {
                             if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
@@ -124,7 +139,8 @@ public class MainActivity extends AppCompatActivity {
                             bluetoothLeScanner.stopScan(mScanCallback);
                         }
                     }, SCAN_PERIOD);
-                }
+                } */
+
 
             }
         });
@@ -144,6 +160,4 @@ public class MainActivity extends AppCompatActivity {
         //ScanFilter scanFilterTime = new ScanFilter.Builder()
         scanFilters.add(scanFilterName);
     }
-
-
 }

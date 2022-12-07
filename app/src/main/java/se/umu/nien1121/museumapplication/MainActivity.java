@@ -19,7 +19,16 @@ import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
 
+import com.google.gson.Gson;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Timer;
@@ -27,6 +36,8 @@ import java.util.TimerTask;
 import java.util.TreeMap;
 
 import se.umu.nien1121.museumapplication.databinding.ActivityMainBinding;
+import se.umu.nien1121.museumapplication.model.Artwork;
+import se.umu.nien1121.museumapplication.model.JsonReader;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -42,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
     private BluetoothLeScanner bluetoothLeScanner;
     private ScanSettings mScanSettings;
     private List<ScanFilter> scanFilters;
-    private LinkedHashSet<String> beacons = new LinkedHashSet<>();
+    private ArrayList<String> beacons = new ArrayList<>();
     private boolean scanning;
 
     public class TimerClass {
@@ -55,14 +66,28 @@ public class MainActivity extends AppCompatActivity {
         class RemindTask extends TimerTask {
             @SuppressLint("MissingPermission")
             public void run() {
-                if(bluetoothLeScanner != null) {
+                if (bluetoothLeScanner != null) {
                     bluetoothLeScanner.stopScan(mScanCallback);
                 }
                 System.out.println("Stoppa timer");
                 binding.scanBtn.setBackgroundColor(getResources().getColor(R.color.purple_500));
                 timer.cancel();
+                try {
+                    getArtworkInfo();
+                } catch (Exception e) {
+                    System.out.println(Arrays.toString(e.getStackTrace()));
+                    System.out.println(e.getMessage());
+                }
             }
         }
+    }
+
+    private void getArtworkInfo() throws JSONException, IOException {
+        String url = "http://85.230.192.244/painting?id=" + "C58C6FC8479A419FA040EE34575CAD04"; //Ersätt med beacons[0]
+        JSONObject artworkInfo = JsonReader.readJsonFromUrl(url);
+        Gson gson = new Gson();
+        Artwork artwork = gson.fromJson(artworkInfo.toString(), Artwork.class);
+        System.out.println(artwork);
     }
 
 
@@ -82,14 +107,15 @@ public class MainActivity extends AppCompatActivity {
                     for (int i = 2; i < 18; i++) {
                         sb.append(String.format("%02x", datavalue[i]));
                     }
-                   beacons.add(sb.toString());
+                    if (!beacons.contains(sb.toString()))
+                        beacons.add(sb.toString().toUpperCase()); //Adds beacon uuid to linkedhashset
 
                 }
             } else {
                 Log.d("MainActivity", mScanRecord.toString());
             }
 
-            //Adds beacon uuid to linkedhashset
+
             for (String s : beacons) {
                 Log.d("MainActivity", "Beacon: " + s);
             }

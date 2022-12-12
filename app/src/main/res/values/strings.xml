@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">MuseumApplication</string>
+    <string name="artwork_title_text">Artwork title</string>
+    <string name="artwork_author_text">Author name</string>
 </resources>

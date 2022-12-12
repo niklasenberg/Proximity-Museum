@@ -2,6 +2,8 @@ package se.umu.nien1121.museumapplication;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -13,12 +15,14 @@ import android.bluetooth.le.ScanRecord;
 import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
 import android.content.pm.PackageManager;
-import android.content.res.Resources;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.util.SparseArray;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.google.gson.Gson;
 
@@ -27,22 +31,14 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.URL;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.TreeMap;
-import java.util.stream.Collectors;
 
 import se.umu.nien1121.museumapplication.databinding.ActivityMainBinding;
-import se.umu.nien1121.museumapplication.model.Artwork;
 import se.umu.nien1121.museumapplication.model.Beacon;
 import se.umu.nien1121.museumapplication.model.JsonReader;
 
@@ -61,7 +57,9 @@ public class MainActivity extends AppCompatActivity {
     private ScanSettings mScanSettings;
     private List<ScanFilter> scanFilters;
     private ArrayList<Beacon> beacons = new ArrayList<>();
-    private HashMap<String, Integer> beaconsWithRssi = new HashMap<>();
+    private HashMap<String, Integer> beaconIdToNumberOfReads = new HashMap<>();
+    private HashMap<String, Integer> beaconIdToRssiSum = new HashMap<>();
+    private BeaconAdapter adapter = new BeaconAdapter(new ArrayList<>());
 
     public class TimerClass {
         Timer timer = new Timer();
@@ -77,19 +75,54 @@ public class MainActivity extends AppCompatActivity {
                     bluetoothLeScanner.stopScan(mScanCallback);
                 }
                 System.out.println("Stoppa timer");
-                binding.scanBtn.setBackgroundColor(getResources().getColor(R.color.purple_500));
                 timer.cancel();
 
+                new AsyncTask<Integer, ArrayList<Beacon>, ArrayList<Beacon>>() {
+                    @Override
+                    protected ArrayList<Beacon> doInBackground(Integer... params) { // Add code to fetch data via SSH
+                        beacons.add(new Beacon("C58C6FC8479A419FA040EE34575CAD04", 20));
+                        beaconIdToNumberOfReads.put("C58C6FC8479A419FA040EE34575CAD04", 1);
+                        beaconIdToRssiSum.put("C58C6FC8479A419FA040EE34575CAD04", 1);
+                        //fetchBeacons();
+                        for (Beacon beacon : beacons) {
+                            int numberOfReads = beaconIdToNumberOfReads.get(beacon.getId());
+                            int rssiSum = beaconIdToRssiSum.get(beacon.getId());
+                            beacon.setRssi(rssiSum / numberOfReads);
+                            try {
+                                Log.d("MainActivity", "Jag nådde hit");
+                                String url = "http://85.230.192.244/painting?id=" + beacon.getId();
+                                JSONObject artworkInfo = JsonReader.readJsonFromUrl(url);
+                                Log.d("MainActivity", "Jag nådde hit också");
+                                Gson gson = new Gson();
+                                beacon.setArtwork(gson.fromJson(artworkInfo.toString(), Beacon.Artwork.class));
+                            } catch (Exception e) {
+                                System.out.println(e.getMessage());
+                            }
+                        }
+                        Collections.sort(beacons);
+                        return beacons;
+                    }
+
+                    @Override
+                    protected void onPostExecute(ArrayList<Beacon> beacons) {
+                        binding.artworkList.setVisibility(View.VISIBLE);
+                        binding.progressBar.setVisibility(View.INVISIBLE);
+                        binding.scanBtn.setEnabled(true);
+                        binding.scanBtn.setBackgroundColor(getResources().getColor(R.color.purple_500));
+                        adapter = new BeaconAdapter(beacons);
+                        binding.artworkRecyclerView.setAdapter(adapter);
+                        System.out.println(beacons.get(0));
+                    }
+                }.execute(1);
             }
         }
     }
 
-    private void getArtworkInfo(String id) throws JSONException, IOException {
-        String url = "http://85.230.192.244/painting?id=" + id;
-        JSONObject artworkInfo = JsonReader.readJsonFromUrl(url);
-        Gson gson = new Gson();
-        Artwork artwork = gson.fromJson(artworkInfo.toString(), Artwork.class);
-        System.out.println(artwork);
+    private void fetchBeacons() {
+
+    }
+    public void fetchArtworkInfo() throws JSONException, IOException {
+
     }
 
     protected final ScanCallback mScanCallback = new ScanCallback() {
@@ -111,16 +144,20 @@ public class MainActivity extends AppCompatActivity {
                         sb.append(String.format("%02x", datavalue[i]));
                     }
 
-                    for (Beacon b: beacons){
+                    String id = sb.toString();
+
+                    for (Beacon b : beacons) {
                         if (b.getId().equals(sb.toString())) {
-                            b.setRssi(rssi);
+                            beaconIdToNumberOfReads.put(id, beaconIdToNumberOfReads.get(id) + 1);
+                            beaconIdToRssiSum.put(id, beaconIdToRssiSum.get(id) + rssi);
                             return;
                         }
                     }
 
-                    Beacon beacon = new Beacon (sb.toString(), rssi);
+                    Beacon beacon = new Beacon(sb.toString(), rssi);
                     beacons.add(beacon);
-                    Collections.sort(beacons);
+                    beaconIdToNumberOfReads.put(id, 1);
+                    beaconIdToRssiSum.put(id, rssi);
                 }
             } else {
                 Log.d("MainActivity", mScanRecord.toString());
@@ -139,17 +176,20 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        binding.artworkRecyclerView.setAdapter(adapter);
+
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (bluetoothAdapter != null) {
             bluetoothLeScanner = bluetoothAdapter.getBluetoothLeScanner();
         }
 
+        binding.progressBar.setVisibility(View.INVISIBLE);
 
         binding.scanBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
 
                 //Times the scanning
-                new TimerClass(30);
+                new TimerClass(SCAN_PERIOD);
                 if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.BLUETOOTH) != PackageManager.PERMISSION_GRANTED) {
                     ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.BLUETOOTH}, 0);
                     Log.d("MainActivity", "Premission not granted");
@@ -161,10 +201,75 @@ public class MainActivity extends AppCompatActivity {
                 if (bluetoothLeScanner != null) {
                     bluetoothLeScanner.startScan(scanFilters, mScanSettings, mScanCallback);
                 }
+                binding.artworkList.setVisibility(View.INVISIBLE);
+                binding.progressBar.setVisibility(View.VISIBLE);
                 binding.scanBtn.setEnabled(false);
                 binding.scanBtn.setBackgroundColor(getResources().getColor(R.color.grey));
             }
         });
+    }
+
+    public class BeaconAdapter extends RecyclerView.Adapter<BeaconAdapter.ViewHolder> {
+
+        private Beacon[] beacons;
+
+        /**
+         * Provide a reference to the type of views that you are using
+         * (custom ViewHolder).
+         */
+        public class ViewHolder extends RecyclerView.ViewHolder {
+            private final TextView title_textView;
+            private final TextView author_textView;
+
+            public ViewHolder(View view) {
+                super(view);
+                // Define click listener for the ViewHolder's View
+
+                title_textView = view.findViewById(R.id.artwork_title_textView);
+                author_textView = view.findViewById(R.id.artwork_author_textView);
+            }
+
+            public TextView getTitle_textView() {
+                return title_textView;
+            }
+
+            public TextView getAuthor_textView() {
+                return author_textView;
+            }
+        }
+
+        public BeaconAdapter(ArrayList<Beacon> beacons) {
+            Beacon[] array = new Beacon[beacons.size()];
+            this.beacons = beacons.toArray(array);
+        }
+
+        // Create new views (invoked by the layout manager)
+        @Override
+        public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
+            // Create a new view, which defines the UI of the list item
+            View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.list_item_artwork, viewGroup, false);
+            return new ViewHolder(view);
+        }
+
+        // Replace the contents of a view (invoked by the layout manager)
+        @Override
+        public void onBindViewHolder(ViewHolder viewHolder, final int position) {
+
+            // Get element from your dataset at this position and replace the
+            // contents of the view with that element
+            Beacon.Artwork artwork = beacons[position].getArtwork();
+
+            if(artwork != null){
+                viewHolder.getTitle_textView().setText(artwork.getTitle());
+                viewHolder.getAuthor_textView().setText(artwork.getArtistName());
+            }
+        }
+
+        // Return the size of your dataset (invoked by the layout manager)
+        @Override
+        public int getItemCount() {
+            return beacons.length;
+        }
     }
 
     /* Finds nearest beacon from scanning

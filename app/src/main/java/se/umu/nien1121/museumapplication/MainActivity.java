@@ -39,9 +39,11 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import se.umu.nien1121.museumapplication.databinding.ActivityMainBinding;
 import se.umu.nien1121.museumapplication.model.Artwork;
+import se.umu.nien1121.museumapplication.model.Beacon;
 import se.umu.nien1121.museumapplication.model.JsonReader;
 
 public class MainActivity extends AppCompatActivity {
@@ -58,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
     private BluetoothLeScanner bluetoothLeScanner;
     private ScanSettings mScanSettings;
     private List<ScanFilter> scanFilters;
-    private ArrayList<String> beacons = new ArrayList<>();
+    private ArrayList<Beacon> beacons = new ArrayList<>();
     private HashMap<String, Integer> beaconsWithRssi = new HashMap<>();
 
     public class TimerClass {
@@ -77,21 +79,13 @@ public class MainActivity extends AppCompatActivity {
                 System.out.println("Stoppa timer");
                 binding.scanBtn.setBackgroundColor(getResources().getColor(R.color.purple_500));
                 timer.cancel();
-                findBeacon(); //find beacon with smallest rssi value
 
-                /*
-                try {
-                    //getArtworkInfo();
-                } catch (Exception e) {
-                    System.out.println(Arrays.toString(e.getStackTrace()));
-                    System.out.println(e.getMessage());
-                }*/
             }
         }
     }
 
     private void getArtworkInfo(String id) throws JSONException, IOException {
-        String url = "http://85.230.192.244/painting?id=" + id; //Ersatt med beacon ID, men kanske är bättre att hämta direkt från mapen?
+        String url = "http://85.230.192.244/painting?id=" + id;
         JSONObject artworkInfo = JsonReader.readJsonFromUrl(url);
         Gson gson = new Gson();
         Artwork artwork = gson.fromJson(artworkInfo.toString(), Artwork.class);
@@ -109,16 +103,24 @@ public class MainActivity extends AppCompatActivity {
                 byte[] datavalue = data.valueAt(0);
 
                 if (datavalue != null && datavalue.length == 23 && datavalue[0] == (byte) 0x02 && datavalue[22] == (byte) 0xc5) {
-                    StringBuilder sb = new StringBuilder();
-                    int rssi = result.getRssi();
+                    StringBuilder sb = new StringBuilder(); //id
+                    int rssi = result.getRssi(); //rssi
+                    Log.d("Rssi", String.valueOf(rssi));
 
                     for (int i = 2; i < 18; i++) {
                         sb.append(String.format("%02x", datavalue[i]));
                     }
 
-                    if (!beacons.contains(sb.toString().toUpperCase()))
-                        beacons.add(sb.toString().toUpperCase()); //Adds beacon uuid to linkedhashset
-                        beaconsWithRssi.put(sb.toString().toUpperCase(), rssi); //Adds beacon uuid and rssi to hashmap
+                    for (Beacon b: beacons){
+                        if (b.getId().equals(sb.toString())) {
+                            b.setRssi(rssi);
+                            return;
+                        }
+                    }
+
+                    Beacon beacon = new Beacon (sb.toString(), rssi);
+                    beacons.add(beacon);
+                    Collections.sort(beacons);
                 }
             } else {
                 Log.d("MainActivity", mScanRecord.toString());
@@ -147,7 +149,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 //Times the scanning
-                new TimerClass(SCAN_PERIOD);
+                new TimerClass(30);
                 if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.BLUETOOTH) != PackageManager.PERMISSION_GRANTED) {
                     ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.BLUETOOTH}, 0);
                     Log.d("MainActivity", "Premission not granted");
@@ -165,18 +167,18 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    /* Finds nearest beacon from scanning */
-    private void findBeacon(){
+    /* Finds nearest beacon from scanning
+    private void findBeacon() {
         int smallestValue = 0;
         String beaconid = null;
 
         //Find the beacon with the highest RSSI (highest since its a negative number)
-        if (beaconsWithRssi.values().size() != 0 || beaconsWithRssi.values() != null){
+        if (beaconsWithRssi.values().size() != 0 || beaconsWithRssi.values() != null) {
             smallestValue = Collections.max(beaconsWithRssi.values()); //max since rssi is a negative number
         }
 
-        for (Map.Entry<String, Integer> entry: beaconsWithRssi.entrySet()){
-            if(entry.getValue() == smallestValue){
+        for (Map.Entry<String, Integer> entry : beaconsWithRssi.entrySet()) {
+            if (entry.getValue() == smallestValue) {
                 if (beaconid == null) {   //Kom på annan lösning för om två beacons har samma rssi
                     beaconid = entry.getKey();
                 }
@@ -191,7 +193,7 @@ public class MainActivity extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
+    } */
 
     private void setScanSettings() {
         ScanSettings.Builder mBuilder = new ScanSettings.Builder();

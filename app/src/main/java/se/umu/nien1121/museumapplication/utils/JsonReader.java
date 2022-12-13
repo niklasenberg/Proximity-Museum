@@ -1,4 +1,4 @@
-package se.umu.nien1121.museumapplication.model;
+package se.umu.nien1121.museumapplication.utils;
 
 import android.util.Log;
 

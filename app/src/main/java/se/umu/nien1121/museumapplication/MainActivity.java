@@ -2,7 +2,6 @@ package se.umu.nien1121.museumapplication;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
-import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -15,25 +14,16 @@ import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.SparseArray;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.google.gson.Gson;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -43,7 +33,7 @@ import java.util.TimerTask;
 
 import se.umu.nien1121.museumapplication.databinding.ActivityMainBinding;
 import se.umu.nien1121.museumapplication.model.Beacon;
-import se.umu.nien1121.museumapplication.model.JsonReader;
+import se.umu.nien1121.museumapplication.utils.JsonReader;
 
 public class MainActivity extends AppCompatActivity {
     public static final String LIST_KEY = "BEACON_LIST";

@@ -2,7 +2,6 @@ package se.umu.nien1121.museumapplication;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
@@ -15,6 +14,8 @@ import android.bluetooth.le.ScanRecord;
 import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -22,6 +23,7 @@ import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
@@ -30,7 +32,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.net.URL;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -46,11 +48,6 @@ public class MainActivity extends AppCompatActivity {
 
     // Stops scanning after 5 seconds.
     private static final int SCAN_PERIOD = 5;
-
-    /*   private boolean scanning;
-       private Handler handler = new Handler();
-       private BluetoothManager bluetoothManager;
-       private final int REQUEST_ENABLE_BT = 1; */
     private ActivityMainBinding binding;
     private BluetoothAdapter bluetoothAdapter;
     private BluetoothLeScanner bluetoothLeScanner;
@@ -77,13 +74,10 @@ public class MainActivity extends AppCompatActivity {
                 System.out.println("Stoppa timer");
                 timer.cancel();
 
+
                 new AsyncTask<Integer, ArrayList<Beacon>, ArrayList<Beacon>>() {
                     @Override
                     protected ArrayList<Beacon> doInBackground(Integer... params) { // Add code to fetch data via SSH
-                        beacons.add(new Beacon("C58C6FC8479A419FA040EE34575CAD04", 20));
-                        beaconIdToNumberOfReads.put("C58C6FC8479A419FA040EE34575CAD04", 1);
-                        beaconIdToRssiSum.put("C58C6FC8479A419FA040EE34575CAD04", 1);
-                        //fetchBeacons();
                         for (Beacon beacon : beacons) {
                             int numberOfReads = beaconIdToNumberOfReads.get(beacon.getId());
                             int rssiSum = beaconIdToRssiSum.get(beacon.getId());
@@ -105,6 +99,8 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     protected void onPostExecute(ArrayList<Beacon> beacons) {
+
+                        /* Detta ska göras efter vi hämtat all info*/
                         binding.artworkList.setVisibility(View.VISIBLE);
                         binding.progressBar.setVisibility(View.INVISIBLE);
                         binding.scanBtn.setEnabled(true);
@@ -116,13 +112,6 @@ public class MainActivity extends AppCompatActivity {
                 }.execute(1);
             }
         }
-    }
-
-    private void fetchBeacons() {
-
-    }
-    public void fetchArtworkInfo() throws JSONException, IOException {
-
     }
 
     protected final ScanCallback mScanCallback = new ScanCallback() {
@@ -138,23 +127,22 @@ public class MainActivity extends AppCompatActivity {
                 if (datavalue != null && datavalue.length == 23 && datavalue[0] == (byte) 0x02 && datavalue[22] == (byte) 0xc5) {
                     StringBuilder sb = new StringBuilder(); //id
                     int rssi = result.getRssi(); //rssi
-                    Log.d("Rssi", String.valueOf(rssi));
 
                     for (int i = 2; i < 18; i++) {
                         sb.append(String.format("%02x", datavalue[i]));
                     }
 
-                    String id = sb.toString();
+                    String id = sb.toString().toUpperCase();
 
                     for (Beacon b : beacons) {
-                        if (b.getId().equals(sb.toString())) {
+                        if (b.getId().equals(id)) {
                             beaconIdToNumberOfReads.put(id, beaconIdToNumberOfReads.get(id) + 1);
                             beaconIdToRssiSum.put(id, beaconIdToRssiSum.get(id) + rssi);
                             return;
                         }
                     }
 
-                    Beacon beacon = new Beacon(sb.toString(), rssi);
+                    Beacon beacon = new Beacon(id, rssi);
                     beacons.add(beacon);
                     beaconIdToNumberOfReads.put(id, 1);
                     beaconIdToRssiSum.put(id, rssi);
@@ -220,21 +208,15 @@ public class MainActivity extends AppCompatActivity {
         public class ViewHolder extends RecyclerView.ViewHolder {
             private final TextView title_textView;
             private final TextView author_textView;
+            private final ImageView artwork_image;
+
 
             public ViewHolder(View view) {
                 super(view);
                 // Define click listener for the ViewHolder's View
-
                 title_textView = view.findViewById(R.id.artwork_title_textView);
                 author_textView = view.findViewById(R.id.artwork_author_textView);
-            }
-
-            public TextView getTitle_textView() {
-                return title_textView;
-            }
-
-            public TextView getAuthor_textView() {
-                return author_textView;
+                artwork_image = view.findViewById(R.id.imageview_artwork);
             }
         }
 
@@ -252,6 +234,8 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // Replace the contents of a view (invoked by the layout manager)
+
+        /*Binder objekt till dataobjekt*/
         @Override
         public void onBindViewHolder(ViewHolder viewHolder, final int position) {
 
@@ -260,9 +244,12 @@ public class MainActivity extends AppCompatActivity {
             Beacon.Artwork artwork = beacons[position].getArtwork();
 
             if(artwork != null){
-                viewHolder.getTitle_textView().setText(artwork.getTitle());
-                viewHolder.getAuthor_textView().setText(artwork.getArtistName());
+                viewHolder.title_textView.setText(artwork.getTitle());
+                viewHolder.author_textView.setText(artwork.getArtistName());
+                DownloadImageTask imageTask = new DownloadImageTask(viewHolder.artwork_image);
+                imageTask.execute(artwork.getImage());
             }
+
         }
 
         // Return the size of your dataset (invoked by the layout manager)
@@ -300,6 +287,33 @@ public class MainActivity extends AppCompatActivity {
         }
     } */
 
+    private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
+        ImageView bmImage;
+
+        public DownloadImageTask(ImageView bmImage) {
+            this.bmImage = bmImage;
+        }
+
+        protected Bitmap doInBackground(String... urls) {
+            String urldisplay = urls[0];
+            Bitmap mIcon11 = null;
+            try {
+                if (urldisplay != null) {
+                    InputStream in = new java.net.URL(urldisplay).openStream();
+                    mIcon11 = BitmapFactory.decodeStream(in);
+                }
+            } catch (Exception e) {
+                Log.e("Error", e.getMessage());
+                e.printStackTrace();
+            }
+            return mIcon11;
+        }
+
+        protected void onPostExecute(Bitmap result) {
+            bmImage.setImageBitmap(result);
+        }
+    }
+
     private void setScanSettings() {
         ScanSettings.Builder mBuilder = new ScanSettings.Builder();
         mBuilder.setReportDelay(0);
@@ -313,3 +327,7 @@ public class MainActivity extends AppCompatActivity {
         scanFilters.add(scanFilterName);
     }
 }
+
+//Testa avstånd med Eddies telefon
+//Snygga till kod
+//Fixa UI (bildstorlek, detaljsida mm.)

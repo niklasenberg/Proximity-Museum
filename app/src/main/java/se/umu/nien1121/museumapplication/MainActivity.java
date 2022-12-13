@@ -13,6 +13,7 @@ import android.bluetooth.le.ScanFilter;
 import android.bluetooth.le.ScanRecord;
 import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -45,6 +46,7 @@ import se.umu.nien1121.museumapplication.model.Beacon;
 import se.umu.nien1121.museumapplication.model.JsonReader;
 
 public class MainActivity extends AppCompatActivity {
+    public static final String LIST_KEY = "BEACON_LIST";
 
     // Stops scanning after 5 seconds.
     private static final int SCAN_PERIOD = 5;
@@ -56,7 +58,6 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<Beacon> beacons = new ArrayList<>();
     private HashMap<String, Integer> beaconIdToNumberOfReads = new HashMap<>();
     private HashMap<String, Integer> beaconIdToRssiSum = new HashMap<>();
-    private BeaconAdapter adapter = new BeaconAdapter(new ArrayList<>());
 
     public class TimerClass {
         Timer timer = new Timer();
@@ -77,10 +78,10 @@ public class MainActivity extends AppCompatActivity {
                 new AsyncTask<Integer, ArrayList<Beacon>, ArrayList<Beacon>>() {
                     @Override
                     protected ArrayList<Beacon> doInBackground(Integer... params) {
-                        /*For emulator use
+                        //For emulator use
                         beacons.add(new Beacon("C8232AFA1B79451BAD2ABB716704A8BF", 20));
                         beaconIdToNumberOfReads.put("C8232AFA1B79451BAD2ABB716704A8BF", 1);
-                        beaconIdToRssiSum.put("C8232AFA1B79451BAD2ABB716704A8BF", 20);*/
+                        beaconIdToRssiSum.put("C8232AFA1B79451BAD2ABB716704A8BF", 20);
 
                         for (Beacon beacon : beacons) {
                             int numberOfReads = beaconIdToNumberOfReads.get(beacon.getId());
@@ -105,13 +106,12 @@ public class MainActivity extends AppCompatActivity {
                     protected void onPostExecute(ArrayList<Beacon> beacons) {
                         if (beacons.size() > 0) {
                             /* Detta ska göras efter vi hämtat all info*/
-                            binding.artworkRecyclerView.setVisibility(View.VISIBLE);
                             binding.progressBar.setVisibility(View.INVISIBLE);
                             binding.scanBtn.setEnabled(true);
                             binding.scanBtn.setBackgroundColor(getResources().getColor(R.color.purple_500));
-                            adapter = new BeaconAdapter(beacons);
-                            binding.artworkRecyclerView.setAdapter(adapter);
-                            System.out.println(beacons.get(0));
+                            Intent resultIntent = new Intent(MainActivity.this, ResultsActivity.class);
+                            resultIntent.putParcelableArrayListExtra(LIST_KEY, beacons);
+                            startActivity(resultIntent);
                         }
                     }
                 }.execute(1);
@@ -169,8 +169,6 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        binding.artworkRecyclerView.setAdapter(adapter);
-
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (bluetoothAdapter != null) {
             bluetoothLeScanner = bluetoothAdapter.getBluetoothLeScanner();
@@ -194,101 +192,11 @@ public class MainActivity extends AppCompatActivity {
                 if (bluetoothLeScanner != null) {
                     bluetoothLeScanner.startScan(scanFilters, mScanSettings, mScanCallback);
                 }
-                binding.artworkRecyclerView.setVisibility(View.INVISIBLE);
                 binding.progressBar.setVisibility(View.VISIBLE);
                 binding.scanBtn.setEnabled(false);
                 binding.scanBtn.setBackgroundColor(getResources().getColor(R.color.grey));
             }
         });
-    }
-
-    public class BeaconAdapter extends RecyclerView.Adapter<BeaconAdapter.ViewHolder> {
-
-        private Beacon[] beacons;
-
-        /**
-         * Provide a reference to the type of views that you are using
-         * (custom ViewHolder).
-         */
-        public class ViewHolder extends RecyclerView.ViewHolder {
-            private final TextView title_textView;
-            private final TextView author_textView;
-            private final ImageView artwork_image;
-
-
-            public ViewHolder(View view) {
-                super(view);
-                // Define click listener for the ViewHolder's View
-                title_textView = view.findViewById(R.id.artwork_title_textView);
-                author_textView = view.findViewById(R.id.artwork_author_textView);
-                artwork_image = view.findViewById(R.id.imageview_artwork);
-            }
-        }
-
-        public BeaconAdapter(ArrayList<Beacon> beacons) {
-            Beacon[] array = new Beacon[beacons.size()];
-            this.beacons = beacons.toArray(array);
-        }
-
-        // Create new views (invoked by the layout manager)
-        @Override
-        public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
-            // Create a new view, which defines the UI of the list item
-            View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.list_item_artwork, viewGroup, false);
-            return new ViewHolder(view);
-        }
-
-        // Replace the contents of a view (invoked by the layout manager)
-
-        /*Binder objekt till dataobjekt*/
-        @Override
-        public void onBindViewHolder(ViewHolder viewHolder, final int position) {
-
-            // Get element from your dataset at this position and replace the
-            // contents of the view with that element
-            Beacon.Artwork artwork = beacons[position].getArtwork();
-
-            if (artwork != null) {
-                viewHolder.title_textView.setText(artwork.getTitle());
-                viewHolder.author_textView.setText(artwork.getArtistName());
-                DownloadImageTask imageTask = new DownloadImageTask(viewHolder.artwork_image);
-                imageTask.execute(artwork.getImage());
-            }
-
-        }
-
-        // Return the size of your dataset (invoked by the layout manager)
-        @Override
-        public int getItemCount() {
-            return beacons.length;
-        }
-    }
-
-    private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
-        ImageView bmImage;
-
-        public DownloadImageTask(ImageView bmImage) {
-            this.bmImage = bmImage;
-        }
-
-        protected Bitmap doInBackground(String... urls) {
-            String urldisplay = urls[0];
-            Bitmap mIcon11 = null;
-            try {
-                if (urldisplay != null) {
-                    InputStream in = new java.net.URL(urldisplay).openStream();
-                    mIcon11 = BitmapFactory.decodeStream(in);
-                }
-            } catch (Exception e) {
-                Log.e("Error", e.getMessage());
-                e.printStackTrace();
-            }
-            return mIcon11;
-        }
-
-        protected void onPostExecute(Bitmap result) {
-            bmImage.setImageBitmap(result);
-        }
     }
 
     private void setScanSettings() {

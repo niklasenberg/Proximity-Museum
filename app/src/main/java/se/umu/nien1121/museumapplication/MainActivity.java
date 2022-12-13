@@ -105,7 +105,7 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     protected void onPostExecute(ArrayList<Beacon> beacons) {
-                        binding.artworkList.setVisibility(View.VISIBLE);
+                        binding.artworkRecyclerView.setVisibility(View.VISIBLE);
                         binding.progressBar.setVisibility(View.INVISIBLE);
                         binding.scanBtn.setEnabled(true);
                         binding.scanBtn.setBackgroundColor(getResources().getColor(R.color.purple_500));
@@ -201,7 +201,7 @@ public class MainActivity extends AppCompatActivity {
                 if (bluetoothLeScanner != null) {
                     bluetoothLeScanner.startScan(scanFilters, mScanSettings, mScanCallback);
                 }
-                binding.artworkList.setVisibility(View.INVISIBLE);
+                binding.artworkRecyclerView.setVisibility(View.INVISIBLE);
                 binding.progressBar.setVisibility(View.VISIBLE);
                 binding.scanBtn.setEnabled(false);
                 binding.scanBtn.setBackgroundColor(getResources().getColor(R.color.grey));

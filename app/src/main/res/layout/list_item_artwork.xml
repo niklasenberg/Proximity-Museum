@@ -11,7 +11,8 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
         android:orientation="horizontal"
         android:padding="5dp">
 
@@ -19,12 +20,15 @@
             android:id="@+id/imageview_artwork"
             android:layout_width="45dp"
             android:layout_height="80dp"
+            android:scaleType="centerCrop"
+            android:layout_gravity="center_vertical"
             android:background="@color/black"
             app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent" />
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
             android:orientation="vertical">
 
             <TextView

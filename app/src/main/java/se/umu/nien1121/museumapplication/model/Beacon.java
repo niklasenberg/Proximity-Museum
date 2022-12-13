@@ -1,13 +1,5 @@
 package se.umu.nien1121.museumapplication.model;
 
-import android.util.Log;
-
-import com.google.gson.Gson;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOException;
 import java.util.Arrays;
 
 public class Beacon implements Comparable<Beacon> {
@@ -60,15 +52,15 @@ public class Beacon implements Comparable<Beacon> {
         private int completitionYear;
         private String[] styles;
         private String description;
-        private String imageUrl;
+        private String image;
 
-        public Artwork(String title, String artistName, int completitionYear, String[] styles, String description, String imageUrl) {
+        public Artwork(String title, String artistName, int completitionYear, String[] styles, String description, String image) {
             this.title = title;
             this.artistName = artistName;
             this.completitionYear = completitionYear;
             this.styles = styles;
             this.description = description;
-            this.imageUrl = imageUrl;
+            this.image = image;
         }
 
         public String getTitle() {
@@ -91,8 +83,8 @@ public class Beacon implements Comparable<Beacon> {
             return description;
         }
 
-        public String getImageUrl() {
-            return imageUrl;
+        public String getImage() {
+            return image;
         }
 
         @Override
@@ -103,7 +95,7 @@ public class Beacon implements Comparable<Beacon> {
                     ", completitionYear=" + completitionYear +
                     ", styles=" + Arrays.toString(styles) +
                     ", description='" + description + '\'' +
-                    ", imageUrl='" + imageUrl + '\'' +
+                    ", imageUrl='" + image + '\'' +
                     '}';
         }
     }

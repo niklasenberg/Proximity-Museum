@@ -33,6 +33,7 @@ import java.util.TimerTask;
 
 import se.umu.nien1121.museumapplication.databinding.ActivityMainBinding;
 import se.umu.nien1121.museumapplication.model.Beacon;
+import se.umu.nien1121.museumapplication.utils.ActionBarHelper;
 import se.umu.nien1121.museumapplication.utils.JsonReader;
 
 public class MainActivity extends AppCompatActivity {
@@ -64,10 +65,11 @@ public class MainActivity extends AppCompatActivity {
                 }
                 System.out.println("Stoppa timer");
                 timer.cancel();
-
+                //creates async task that fetches data before presenting
                 new AsyncTask<Integer, ArrayList<Beacon>, ArrayList<Beacon>>() {
                     @Override
                     protected ArrayList<Beacon> doInBackground(Integer... params) {
+
                         //For emulator use
                         beacons.add(new Beacon("C8232AFA1B79451BAD2ABB716704A8BF", 20));
                         beaconIdToNumberOfReads.put("C8232AFA1B79451BAD2ABB716704A8BF", 1);
@@ -77,6 +79,7 @@ public class MainActivity extends AppCompatActivity {
                             int numberOfReads = beaconIdToNumberOfReads.get(beacon.getId());
                             int rssiSum = beaconIdToRssiSum.get(beacon.getId());
                             beacon.setRssi(rssiSum / numberOfReads);
+
                             try {
                                 Log.d("MainActivity", "Jag nådde hit");
                                 String url = "http://85.230.192.244/painting?id=" + beacon.getId();
@@ -94,6 +97,7 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     protected void onPostExecute(ArrayList<Beacon> beacons) {
+
                         if (beacons.size() > 0) {
                             /* Detta ska göras efter vi hämtat all info*/
                             binding.progressBar.setVisibility(View.INVISIBLE);
@@ -110,12 +114,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     protected final ScanCallback mScanCallback = new ScanCallback() {
+
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
-            ScanRecord mScanRecord = result.getScanRecord();
-            SparseArray<byte[]> data = mScanRecord.getManufacturerSpecificData();
+            ScanRecord mScanRecord = result.getScanRecord(); //fetch scanrecord form result
+            SparseArray<byte[]> data = mScanRecord.getManufacturerSpecificData(); //fetch manufacturerspecificdata that stores rssi
 
-            //Fetch and decode UUID form byte to hexadecimal
+            /* Fetch and decode UUID form byte to hexadecimal */
             if (data.size() != 0 && data.valueAt(0) != null) {
                 byte[] datavalue = data.valueAt(0);
 
@@ -158,6 +163,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        ActionBarHelper.setActionBar(this, "Scanning");
 
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (bluetoothAdapter != null) {

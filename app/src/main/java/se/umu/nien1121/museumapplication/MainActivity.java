@@ -74,10 +74,14 @@ public class MainActivity extends AppCompatActivity {
                 System.out.println("Stoppa timer");
                 timer.cancel();
 
-
                 new AsyncTask<Integer, ArrayList<Beacon>, ArrayList<Beacon>>() {
                     @Override
-                    protected ArrayList<Beacon> doInBackground(Integer... params) { // Add code to fetch data via SSH
+                    protected ArrayList<Beacon> doInBackground(Integer... params) {
+                        /*For emulator use
+                        beacons.add(new Beacon("C8232AFA1B79451BAD2ABB716704A8BF", 20));
+                        beaconIdToNumberOfReads.put("C8232AFA1B79451BAD2ABB716704A8BF", 1);
+                        beaconIdToRssiSum.put("C8232AFA1B79451BAD2ABB716704A8BF", 20);*/
+
                         for (Beacon beacon : beacons) {
                             int numberOfReads = beaconIdToNumberOfReads.get(beacon.getId());
                             int rssiSum = beaconIdToRssiSum.get(beacon.getId());
@@ -99,15 +103,16 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     protected void onPostExecute(ArrayList<Beacon> beacons) {
-
-                        /* Detta ska göras efter vi hämtat all info*/
-                        binding.artworkList.setVisibility(View.VISIBLE);
-                        binding.progressBar.setVisibility(View.INVISIBLE);
-                        binding.scanBtn.setEnabled(true);
-                        binding.scanBtn.setBackgroundColor(getResources().getColor(R.color.purple_500));
-                        adapter = new BeaconAdapter(beacons);
-                        binding.artworkRecyclerView.setAdapter(adapter);
-                        System.out.println(beacons.get(0));
+                        if (beacons.size() > 0) {
+                            /* Detta ska göras efter vi hämtat all info*/
+                            binding.artworkRecyclerView.setVisibility(View.VISIBLE);
+                            binding.progressBar.setVisibility(View.INVISIBLE);
+                            binding.scanBtn.setEnabled(true);
+                            binding.scanBtn.setBackgroundColor(getResources().getColor(R.color.purple_500));
+                            adapter = new BeaconAdapter(beacons);
+                            binding.artworkRecyclerView.setAdapter(adapter);
+                            System.out.println(beacons.get(0));
+                        }
                     }
                 }.execute(1);
             }
@@ -189,7 +194,7 @@ public class MainActivity extends AppCompatActivity {
                 if (bluetoothLeScanner != null) {
                     bluetoothLeScanner.startScan(scanFilters, mScanSettings, mScanCallback);
                 }
-                binding.artworkList.setVisibility(View.INVISIBLE);
+                binding.artworkRecyclerView.setVisibility(View.INVISIBLE);
                 binding.progressBar.setVisibility(View.VISIBLE);
                 binding.scanBtn.setEnabled(false);
                 binding.scanBtn.setBackgroundColor(getResources().getColor(R.color.grey));
@@ -243,7 +248,7 @@ public class MainActivity extends AppCompatActivity {
             // contents of the view with that element
             Beacon.Artwork artwork = beacons[position].getArtwork();
 
-            if(artwork != null){
+            if (artwork != null) {
                 viewHolder.title_textView.setText(artwork.getTitle());
                 viewHolder.author_textView.setText(artwork.getArtistName());
                 DownloadImageTask imageTask = new DownloadImageTask(viewHolder.artwork_image);
@@ -258,34 +263,6 @@ public class MainActivity extends AppCompatActivity {
             return beacons.length;
         }
     }
-
-    /* Finds nearest beacon from scanning
-    private void findBeacon() {
-        int smallestValue = 0;
-        String beaconid = null;
-
-        //Find the beacon with the highest RSSI (highest since its a negative number)
-        if (beaconsWithRssi.values().size() != 0 || beaconsWithRssi.values() != null) {
-            smallestValue = Collections.max(beaconsWithRssi.values()); //max since rssi is a negative number
-        }
-
-        for (Map.Entry<String, Integer> entry : beaconsWithRssi.entrySet()) {
-            if (entry.getValue() == smallestValue) {
-                if (beaconid == null) {   //Kom på annan lösning för om två beacons har samma rssi
-                    beaconid = entry.getKey();
-                }
-            }
-        }
-
-        //Get artwork information
-        try {
-            getArtworkInfo(beaconid);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    } */
 
     private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
         ImageView bmImage;

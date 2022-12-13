@@ -95,7 +95,7 @@ public class Beacon implements Comparable<Beacon> {
                     ", completitionYear=" + completitionYear +
                     ", styles=" + Arrays.toString(styles) +
                     ", description='" + description + '\'' +
-                    ", imageUrl='" + image + '\'' +
+                    ", image='" + image + '\'' +
                     '}';
         }
     }

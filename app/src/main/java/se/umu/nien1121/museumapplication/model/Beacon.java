@@ -71,6 +71,8 @@ public class Beacon implements Comparable<Beacon>, Parcelable {
     @Override
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeString(id);
+        parcel.writeParcelable(artwork,1);
+        parcel.writeInt(rssi);
     }
 
     public static class Artwork implements Parcelable {

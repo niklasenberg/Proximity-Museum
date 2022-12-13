@@ -100,7 +100,6 @@ public class MainActivity extends AppCompatActivity {
 
                         if (beacons.size() > 0) {
                             /* Detta ska göras efter vi hämtat all info*/
-                            binding.progressBar.setVisibility(View.INVISIBLE);
                             binding.scanBtn.setEnabled(true);
                             binding.scanBtn.setBackgroundColor(getResources().getColor(R.color.purple_500));
                             Intent resultIntent = new Intent(MainActivity.this, ResultsActivity.class);
@@ -170,7 +169,6 @@ public class MainActivity extends AppCompatActivity {
             bluetoothLeScanner = bluetoothAdapter.getBluetoothLeScanner();
         }
 
-        binding.progressBar.setVisibility(View.INVISIBLE);
 
         binding.scanBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -188,7 +186,6 @@ public class MainActivity extends AppCompatActivity {
                 if (bluetoothLeScanner != null) {
                     bluetoothLeScanner.startScan(scanFilters, mScanSettings, mScanCallback);
                 }
-                binding.progressBar.setVisibility(View.VISIBLE);
                 binding.scanBtn.setEnabled(false);
                 binding.scanBtn.setBackgroundColor(getResources().getColor(R.color.grey));
             }

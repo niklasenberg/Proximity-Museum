@@ -15,6 +15,7 @@ import android.bluetooth.le.ScanSettings;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.SparseArray;
@@ -70,10 +71,10 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     protected ArrayList<Beacon> doInBackground(Integer... params) {
 
-                        //For emulator use
+                        /*For emulator use
                         beacons.add(new Beacon("C8232AFA1B79451BAD2ABB716704A8BF", 20));
                         beaconIdToNumberOfReads.put("C8232AFA1B79451BAD2ABB716704A8BF", 1);
-                        beaconIdToRssiSum.put("C8232AFA1B79451BAD2ABB716704A8BF", 20);
+                        beaconIdToRssiSum.put("C8232AFA1B79451BAD2ABB716704A8BF", 20); */
 
                         for (Beacon beacon : beacons) {
                             int numberOfReads = beaconIdToNumberOfReads.get(beacon.getId());
@@ -92,6 +93,10 @@ public class MainActivity extends AppCompatActivity {
                             }
                         }
                         Collections.sort(beacons);
+
+                        for (Beacon b : beacons) {
+                            Log.d("Beacons", b.getId() + ": " + b.getRssi());
+                        }
                         return beacons;
                     }
 
@@ -174,11 +179,22 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 //Times the scanning
-                new TimerClass(SCAN_PERIOD);
-                if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.BLUETOOTH) != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.BLUETOOTH}, 0);
+                new TimerClass(10);
+
+                //Check bluetooth premissions
+                if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    //If API level is 31 or higher check BLUETOOTH_SCAN premission
+                    if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED)
+                        ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.BLUETOOTH_SCAN}, 0);
                     Log.d("MainActivity", "Premission not granted");
+                } else {
+                    // If API level is below 31 check BLUETOOTH premission
+                    if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.BLUETOOTH) != PackageManager.PERMISSION_GRANTED) {
+                        ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.BLUETOOTH}, 0);
+                        Log.d("MainActivity", "Premission not granted");
+                    }
                 }
+
                 Log.d("MainActivity", "Granted, börjar scanna");
                 setScanSettings();
                 scanFilters();

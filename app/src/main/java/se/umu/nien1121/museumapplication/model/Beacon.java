@@ -12,7 +12,7 @@ public class Beacon implements Comparable<Beacon>, Parcelable {
 
     public Beacon(String id, int rssi) {
         this.id = id;
-        this.rssi = -rssi;
+        this.rssi = Math.abs(rssi);
     }
 
     protected Beacon(Parcel in) {
@@ -46,7 +46,7 @@ public class Beacon implements Comparable<Beacon>, Parcelable {
     }
 
     public void setRssi(int rssi) {
-        this.rssi = rssi;
+        this.rssi = Math.abs(rssi);
     }
 
     public void setArtwork(Artwork artwork) {

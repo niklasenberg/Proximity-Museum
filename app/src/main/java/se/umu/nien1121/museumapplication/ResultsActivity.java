@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import java.util.ArrayList;
 import se.umu.nien1121.museumapplication.databinding.ActivityResultsBinding;
+import se.umu.nien1121.museumapplication.model.Artwork;
 import se.umu.nien1121.museumapplication.model.Beacon;
 import se.umu.nien1121.museumapplication.utils.ActionBarHelper;
 import se.umu.nien1121.museumapplication.utils.DownloadImageTask;
@@ -69,7 +70,7 @@ public class ResultsActivity extends AppCompatActivity {
         /*Binder objekt till dataobjekt*/
         @Override
         public void onBindViewHolder(ViewHolder viewHolder, final int position) {
-            Beacon.Artwork artwork = beacons[position].getArtwork();
+            Artwork artwork = beacons[position].getArtwork();
 
             if (artwork != null) {
                 viewHolder.title_textView.setText(artwork.getTitle());

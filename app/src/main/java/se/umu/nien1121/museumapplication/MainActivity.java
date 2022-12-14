@@ -59,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         class RemindTask extends TimerTask {
-            @SuppressLint("MissingPermission")
+            @SuppressLint({"MissingPermission", "StaticFieldLeak"})
             public void run() {
                 if (bluetoothLeScanner != null) {
                     bluetoothLeScanner.stopScan(mScanCallback);
@@ -207,6 +207,14 @@ public class MainActivity extends AppCompatActivity {
                 binding.scanBtn.setBackgroundColor(getResources().getColor(R.color.grey));
             }
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        beacons.clear();
+        beaconIdToNumberOfReads.clear();
+        beaconIdToRssiSum.clear();
     }
 
     private void setScanSettings() {

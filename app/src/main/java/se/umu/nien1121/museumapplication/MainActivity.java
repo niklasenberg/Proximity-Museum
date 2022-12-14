@@ -71,10 +71,10 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     protected ArrayList<Beacon> doInBackground(Integer... params) {
 
-                        /*For emulator use
+                        //For emulator use
                         beacons.add(new Beacon("C8232AFA1B79451BAD2ABB716704A8BF", 20));
                         beaconIdToNumberOfReads.put("C8232AFA1B79451BAD2ABB716704A8BF", 1);
-                        beaconIdToRssiSum.put("C8232AFA1B79451BAD2ABB716704A8BF", 20); */
+                        beaconIdToRssiSum.put("C8232AFA1B79451BAD2ABB716704A8BF", 20);
 
                         for (Beacon beacon : beacons) {
                             int numberOfReads = beaconIdToNumberOfReads.get(beacon.getId());
@@ -103,10 +103,11 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     protected void onPostExecute(ArrayList<Beacon> beacons) {
 
+                        binding.scanBtn.setEnabled(true);
+                        binding.scanBtn.setBackgroundColor(getResources().getColor(R.color.brown));
+
                         if (beacons.size() > 0) {
                             /* Detta ska göras efter vi hämtat all info*/
-                            binding.scanBtn.setEnabled(true);
-                            binding.scanBtn.setBackgroundColor(getResources().getColor(R.color.purple_500));
                             Intent resultIntent = new Intent(MainActivity.this, ResultsActivity.class);
                             resultIntent.putParcelableArrayListExtra(LIST_KEY, beacons);
                             startActivity(resultIntent);
@@ -179,7 +180,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 //Times the scanning
-                new TimerClass(10);
+                new TimerClass(SCAN_PERIOD);
 
                 //Check bluetooth premissions
                 if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -222,6 +223,5 @@ public class MainActivity extends AppCompatActivity {
     }
 }
 
-//Testa avstånd med Eddies telefon
 //Snygga till kod
 //Fixa UI (bildstorlek, detaljsida mm.)

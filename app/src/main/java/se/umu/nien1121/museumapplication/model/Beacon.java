@@ -3,8 +3,6 @@ package se.umu.nien1121.museumapplication.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import java.util.Arrays;
-
 public class Beacon implements Comparable<Beacon>, Parcelable {
     private final String id;
     private Artwork artwork;
@@ -20,18 +18,6 @@ public class Beacon implements Comparable<Beacon>, Parcelable {
         artwork = in.readParcelable(Artwork.class.getClassLoader());
         rssi = in.readInt();
     }
-
-    public static final Creator<Beacon> CREATOR = new Creator<Beacon>() {
-        @Override
-        public Beacon createFromParcel(Parcel in) {
-            return new Beacon(in);
-        }
-
-        @Override
-        public Beacon[] newArray(int size) {
-            return new Beacon[size];
-        }
-    };
 
     public String getId() {
         return id;
@@ -71,7 +57,19 @@ public class Beacon implements Comparable<Beacon>, Parcelable {
     @Override
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeString(id);
-        parcel.writeParcelable(artwork,1);
+        parcel.writeParcelable(artwork, 1);
         parcel.writeInt(rssi);
     }
+
+    public static final Creator<Beacon> CREATOR = new Creator<Beacon>() {
+        @Override
+        public Beacon createFromParcel(Parcel in) {
+            return new Beacon(in);
+        }
+
+        @Override
+        public Beacon[] newArray(int size) {
+            return new Beacon[size];
+        }
+    };
 }

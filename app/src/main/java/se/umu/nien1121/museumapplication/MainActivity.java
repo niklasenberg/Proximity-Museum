@@ -170,6 +170,7 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         ActionBarHelper.setActionBar(this, "Scanning");
+        scanner();
 
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (bluetoothAdapter != null) {
@@ -179,35 +180,38 @@ public class MainActivity extends AppCompatActivity {
 
         binding.scanBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-
-                //Times the scanning
-                new TimerClass(SCAN_PERIOD);
-
-                //Check bluetooth premissions
-                if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    //If API level is 31 or higher check BLUETOOTH_SCAN premission
-                    if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED)
-                        ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.BLUETOOTH_SCAN}, 0);
-                    Log.d("MainActivity", "Premission not granted");
-                } else {
-                    // If API level is below 31 check BLUETOOTH premission
-                    if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.BLUETOOTH) != PackageManager.PERMISSION_GRANTED) {
-                        ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.BLUETOOTH}, 0);
-                        Log.d("MainActivity", "Premission not granted");
-                    }
-                }
-
-                Log.d("MainActivity", "Granted, börjar scanna");
-                setScanSettings();
-                scanFilters();
-                binding.scanBtn.setBackgroundColor(getResources().getColor(R.color.grey));
-                if (bluetoothLeScanner != null) {
-                    bluetoothLeScanner.startScan(scanFilters, mScanSettings, mScanCallback);
-                }
-                binding.scanBtn.setEnabled(false);
-                binding.scanBtn.setBackgroundColor(getResources().getColor(R.color.grey));
+                scanner();
             }
         });
+    }
+
+    private void scanner(){
+        //Times the scanning
+        new TimerClass(SCAN_PERIOD);
+
+        //Check bluetooth premissions
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            //If API level is 31 or higher check BLUETOOTH_SCAN premission
+            if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED)
+                ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.BLUETOOTH_SCAN}, 0);
+            Log.d("MainActivity", "Premission not granted");
+        } else {
+            // If API level is below 31 check BLUETOOTH premission
+            if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.BLUETOOTH) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.BLUETOOTH}, 0);
+                Log.d("MainActivity", "Premission not granted");
+            }
+        }
+
+        Log.d("MainActivity", "Granted, börjar scanna");
+        setScanSettings();
+        scanFilters();
+        binding.scanBtn.setBackgroundColor(getResources().getColor(R.color.grey));
+        if (bluetoothLeScanner != null) {
+            bluetoothLeScanner.startScan(scanFilters, mScanSettings, mScanCallback);
+        }
+        binding.scanBtn.setEnabled(false);
+        binding.scanBtn.setBackgroundColor(getResources().getColor(R.color.grey));
     }
 
     @Override

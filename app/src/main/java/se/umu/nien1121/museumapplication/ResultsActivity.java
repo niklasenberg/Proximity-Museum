@@ -46,22 +46,13 @@ public class ResultsActivity extends AppCompatActivity {
     public class BeaconAdapter extends RecyclerView.Adapter<BeaconAdapter.ViewHolder> {
 
         private final Beacon[] beacons;
-        private final OnArtworkClickedListener mCallback;
 
         public BeaconAdapter(ArrayList<Beacon> beacons) {
             Beacon[] array = new Beacon[beacons.size()];
             this.beacons = beacons.toArray(array);
-            mCallback = new OnArtworkClickedListener() {
-                @Override
-                public void artworkClicked(int position) {
-                    Intent artworkIntent = new Intent(ResultsActivity.this, ArtworkActivity.class);
-                    artworkIntent.putExtra(ArtworkActivity.ARTWORK_EXTRA, BeaconAdapter.this.beacons[position].getArtwork());
-                    startActivity(artworkIntent);
-                }
-            };
         }
 
-        public class ViewHolder extends RecyclerView.ViewHolder {
+        public class ViewHolder extends RecyclerView.ViewHolder{
             private final TextView title_textView;
             private final TextView author_textView;
             private final ImageView artwork_image;
@@ -73,16 +64,14 @@ public class ResultsActivity extends AppCompatActivity {
                 author_textView = view.findViewById(R.id.artwork_author_textView);
                 artwork_image = view.findViewById(R.id.imageview_artwork);
                 cardView = view.findViewById(R.id.artwork_card);
-            }
-
-            public void bind(OnArtworkClickedListener listener){
-                int position = getAdapterPosition();
-
                 cardView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        if(position >= 0)
-                            listener.artworkClicked(position);
+                        System.out.println("Clicked");
+                        Intent artworkIntent = new Intent(ResultsActivity.this, ArtworkActivity.class);
+                        Beacon beacon = BeaconAdapter.this.beacons[getAdapterPosition()];
+                        artworkIntent.putExtra(ArtworkActivity.ARTWORK_EXTRA, beacon.getArtwork());
+                        startActivity(artworkIntent);
                     }
                 });
             }
@@ -111,9 +100,5 @@ public class ResultsActivity extends AppCompatActivity {
         public int getItemCount() {
             return beacons.length;
         }
-    }
-
-    interface OnArtworkClickedListener {
-        void artworkClicked(int position);
     }
 }

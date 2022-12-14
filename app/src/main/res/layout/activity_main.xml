@@ -41,6 +41,7 @@
 
 
         <pl.droidsonroids.gif.GifImageView
+            android:id ="@+id/gifImageView"
             android:layout_width="300dp"
             android:layout_height="300dp"
             android:src="@drawable/scanning"

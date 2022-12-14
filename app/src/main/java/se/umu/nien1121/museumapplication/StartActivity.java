@@ -29,4 +29,11 @@ public class StartActivity extends AppCompatActivity {
             }
         });
     }
+
+    @Override
+    protected void onResume() {
+        binding.scanBtn.setEnabled(true);
+        binding.scanBtn.setBackgroundResource(android.R.drawable.btn_default);
+        super.onResume();
+    }
 }

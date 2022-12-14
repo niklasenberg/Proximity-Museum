@@ -33,6 +33,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import se.umu.nien1121.museumapplication.databinding.ActivityMainBinding;
+import se.umu.nien1121.museumapplication.model.Artwork;
 import se.umu.nien1121.museumapplication.model.Beacon;
 import se.umu.nien1121.museumapplication.utils.ActionBarHelper;
 import se.umu.nien1121.museumapplication.utils.JsonReader;
@@ -87,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
                                 JSONObject artworkInfo = JsonReader.readJsonFromUrl(url);
                                 Log.d("MainActivity", "Jag nådde hit också");
                                 Gson gson = new Gson();
-                                beacon.setArtwork(gson.fromJson(artworkInfo.toString(), Beacon.Artwork.class));
+                                beacon.setArtwork(gson.fromJson(artworkInfo.toString(), Artwork.class));
                             } catch (Exception e) {
                                 System.out.println(e.getMessage());
                             }

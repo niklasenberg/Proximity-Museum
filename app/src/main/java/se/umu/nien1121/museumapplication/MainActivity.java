@@ -59,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         class RemindTask extends TimerTask {
-            @SuppressLint("MissingPermission")
+            @SuppressLint({"MissingPermission", "StaticFieldLeak"})
             public void run() {
                 if (bluetoothLeScanner != null) {
                     bluetoothLeScanner.stopScan(mScanCallback);
@@ -71,10 +71,10 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     protected ArrayList<Beacon> doInBackground(Integer... params) {
 
-                        /*For emulator use
+                        //For emulator use
                         beacons.add(new Beacon("C8232AFA1B79451BAD2ABB716704A8BF", 20));
                         beaconIdToNumberOfReads.put("C8232AFA1B79451BAD2ABB716704A8BF", 1);
-                        beaconIdToRssiSum.put("C8232AFA1B79451BAD2ABB716704A8BF", 20); */
+                        beaconIdToRssiSum.put("C8232AFA1B79451BAD2ABB716704A8BF", 20);
 
                         for (Beacon beacon : beacons) {
                             int numberOfReads = beaconIdToNumberOfReads.get(beacon.getId());
@@ -179,7 +179,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 //Times the scanning
-                new TimerClass(10);
+                new TimerClass(SCAN_PERIOD);
 
                 //Check bluetooth premissions
                 if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -206,6 +206,14 @@ public class MainActivity extends AppCompatActivity {
                 binding.scanBtn.setBackgroundColor(getResources().getColor(R.color.grey));
             }
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        beacons.clear();
+        beaconIdToNumberOfReads.clear();
+        beaconIdToRssiSum.clear();
     }
 
     private void setScanSettings() {

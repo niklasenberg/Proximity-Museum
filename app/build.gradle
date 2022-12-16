@@ -43,4 +43,6 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.0'
     implementation 'com.github.nutes-uepb:simple-ble-scanner:v1.0.1'
     implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.17' //gif
+    implementation'io.coil-kt:coil:2.2.2'
+    implementation 'io.coil-kt:coil:1.1.1'
 }

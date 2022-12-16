@@ -40,105 +40,37 @@ import se.umu.nien1121.museumapplication.utils.JsonReader;
 
 public class MainActivity extends AppCompatActivity {
     public static final String LIST_KEY = "BEACON_LIST";
-
-    // Stops scanning after 5 seconds.
-    private static final int SCAN_PERIOD = 5;
+    private static final int SCAN_PERIOD = 5; // Stops scanning after 5 seconds.
     private ActivityMainBinding binding;
     private BluetoothAdapter bluetoothAdapter;
     private BluetoothLeScanner bluetoothLeScanner;
     private ScanSettings mScanSettings;
     private List<ScanFilter> scanFilters;
+
     private ArrayList<Beacon> beacons = new ArrayList<>();
     private HashMap<String, Integer> beaconIdToNumberOfReads = new HashMap<>();
     private HashMap<String, Integer> beaconIdToRssiSum = new HashMap<>();
-
-    public class TimerClass {
-        Timer timer = new Timer();
-
-        TimerClass(int seconds) {
-            timer.schedule(new RemindTask(), seconds * 1000);
-        }
-
-        class RemindTask extends TimerTask {
-            @SuppressLint({"MissingPermission", "StaticFieldLeak"})
-            public void run() {
-                if (bluetoothLeScanner != null) {
-                    bluetoothLeScanner.stopScan(mScanCallback);
-                }
-                System.out.println("Stoppa timer");
-                timer.cancel();
-                //creates async task that fetches data before presenting
-                new AsyncTask<Integer, ArrayList<Beacon>, ArrayList<Beacon>>() {
-                    @Override
-                    protected ArrayList<Beacon> doInBackground(Integer... params) {
-
-                        //For emulator use
-                        beacons.add(new Beacon("C8232AFA1B79451BAD2ABB716704A8BF", 20));
-                        beaconIdToNumberOfReads.put("C8232AFA1B79451BAD2ABB716704A8BF", 1);
-                        beaconIdToRssiSum.put("C8232AFA1B79451BAD2ABB716704A8BF", 20);
-
-                        for (Beacon beacon : beacons) {
-                            int numberOfReads = beaconIdToNumberOfReads.get(beacon.getId());
-                            int rssiSum = beaconIdToRssiSum.get(beacon.getId());
-                            beacon.setRssi(rssiSum / numberOfReads);
-
-                            try {
-                                Log.d("MainActivity", "Jag nådde hit");
-                                String url = "http://85.230.192.244/painting?id=" + beacon.getId();
-                                JSONObject artworkInfo = JsonReader.readJsonFromUrl(url);
-                                Log.d("MainActivity", "Jag nådde hit också");
-                                Gson gson = new Gson();
-                                beacon.setArtwork(gson.fromJson(artworkInfo.toString(), Artwork.class));
-                            } catch (Exception e) {
-                                System.out.println(e.getMessage());
-                            }
-                        }
-                        Collections.sort(beacons);
-
-                        for (Beacon b : beacons) {
-                            Log.d("Beacons", b.getId() + ": " + b.getRssi());
-                        }
-                        return beacons;
-                    }
-
-                    @Override
-                    protected void onPostExecute(ArrayList<Beacon> beacons) {
-
-                        binding.scanBtn.setEnabled(true);
-                        binding.scanBtn.setBackgroundColor(getResources().getColor(R.color.brown));
-
-                        if (beacons.size() > 0) {
-                            /* Detta ska göras efter vi hämtat all info*/
-                            Intent resultIntent = new Intent(MainActivity.this, ResultsActivity.class);
-                            resultIntent.putParcelableArrayListExtra(LIST_KEY, beacons);
-                            startActivity(resultIntent);
-                        }
-                    }
-                }.execute(1);
-            }
-        }
-    }
 
     protected final ScanCallback mScanCallback = new ScanCallback() {
 
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
             ScanRecord mScanRecord = result.getScanRecord(); //fetch scanrecord form result
-            SparseArray<byte[]> data = mScanRecord.getManufacturerSpecificData(); //fetch manufacturerspecificdata that stores rssi
+            SparseArray<byte[]> manufacturerSpecificData = mScanRecord.getManufacturerSpecificData(); //fetch manufacturerspecificdata that stores rssi
 
             /* Fetch and decode UUID form byte to hexadecimal */
-            if (data.size() != 0 && data.valueAt(0) != null) {
-                byte[] datavalue = data.valueAt(0);
+            if (manufacturerSpecificData.size() != 0 && manufacturerSpecificData.valueAt(0) != null) {
+                byte[] dataValues = manufacturerSpecificData.valueAt(0);
 
-                if (datavalue != null && datavalue.length == 23 && datavalue[0] == (byte) 0x02 && datavalue[22] == (byte) 0xc5) {
-                    StringBuilder sb = new StringBuilder(); //id
+                if (dataValues != null && dataValues.length == 23 && dataValues[0] == (byte) 0x02 && dataValues[22] == (byte) 0xc5) {
+                    StringBuilder sb = new StringBuilder();
                     int rssi = result.getRssi(); //rssi
 
                     for (int i = 2; i < 18; i++) {
-                        sb.append(String.format("%02x", datavalue[i]));
+                        sb.append(String.format("%02x", dataValues[i]));
                     }
 
-                    String id = sb.toString().toUpperCase();
+                    String id = sb.toString().toUpperCase(); //id
 
                     for (Beacon b : beacons) {
                         if (b.getId().equals(id)) {
@@ -170,31 +102,89 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         ActionBarHelper.setActionBar(this, "Scanning");
-        scanner();
 
-        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        if (bluetoothAdapter != null) {
-            bluetoothLeScanner = bluetoothAdapter.getBluetoothLeScanner();
-        }
-
+        startScanning();
+        createBluetoothAdapter();
 
         binding.scanBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                scanner();
+                startScanning();
             }
         });
     }
 
-    private void scanner(){
-        //Times the scanning
+    @Override
+    protected void onResume() {
+        super.onResume();
+        clearBeaconStorage();
+    }
+
+    public class TimerClass {
+        Timer timer = new Timer();
+
+        TimerClass(int seconds) {
+            timer.schedule(new RemindTask(), seconds * 1000);
+        }
+
+        class RemindTask extends TimerTask {
+            @SuppressLint({"MissingPermission", "StaticFieldLeak"})
+            public void run() {
+
+                if (bluetoothLeScanner != null) {
+                    bluetoothLeScanner.stopScan(mScanCallback);
+                }
+                System.out.println("Stoppa timer");
+                timer.cancel();
+
+                //creates async task that fetches data before presenting
+                new AsyncTask<Integer, ArrayList<Beacon>, ArrayList<Beacon>>() {
+                    @Override
+                    protected ArrayList<Beacon> doInBackground(Integer... params) {
+
+                        //For emulator use
+                        loadBeacons();
+
+                        //Set mean value for rssi and number of reads and creat JSON object
+                        for (Beacon beacon : beacons) {
+                            int numberOfReads = beaconIdToNumberOfReads.get(beacon.getId());
+                            int rssiSum = beaconIdToRssiSum.get(beacon.getId());
+                            beacon.setRssi(rssiSum / numberOfReads);
+                            createJSON(beacon);
+                        }
+
+                        Collections.sort(beacons);
+                        return beacons;
+                    }
+
+                    @Override
+                    protected void onPostExecute(ArrayList<Beacon> beacons) {
+
+                        binding.scanBtn.setEnabled(true);
+                        binding.scanBtn.setBackgroundColor(getResources().getColor(R.color.brown));
+
+                        if (beacons.size() > 0) {
+                            Intent resultIntent = new Intent(MainActivity.this, ResultsActivity.class);
+                            resultIntent.putParcelableArrayListExtra(LIST_KEY, beacons);
+                            startActivity(resultIntent);
+                        }
+                    }
+                }.execute(1);
+            }
+        }
+    }
+
+    private void startScanning() {
+
         new TimerClass(SCAN_PERIOD);
 
-        //Check bluetooth premissions
-        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        //Check bluetooth permissions
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+
             //If API level is 31 or higher check BLUETOOTH_SCAN premission
             if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED)
                 ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.BLUETOOTH_SCAN}, 0);
             Log.d("MainActivity", "Premission not granted");
+
         } else {
             // If API level is below 31 check BLUETOOTH premission
             if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.BLUETOOTH) != PackageManager.PERMISSION_GRANTED) {
@@ -207,19 +197,55 @@ public class MainActivity extends AppCompatActivity {
         setScanSettings();
         scanFilters();
         binding.scanBtn.setBackgroundColor(getResources().getColor(R.color.grey));
+
         if (bluetoothLeScanner != null) {
             bluetoothLeScanner.startScan(scanFilters, mScanSettings, mScanCallback);
         }
+
         binding.scanBtn.setEnabled(false);
         binding.scanBtn.setBackgroundColor(getResources().getColor(R.color.grey));
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        beacons.clear();
+    private void createJSON(Beacon beacon) {
+        try {
+            String url = "http://85.230.192.244/painting?id=" + beacon.getId();
+            JSONObject artworkInfo = JsonReader.readJsonFromUrl(url);
+            Gson gson = new Gson();
+            beacon.setArtwork(gson.fromJson(artworkInfo.toString(), Artwork.class));
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    private void clearBeaconStorage() {
+        beacons.clear(); //Clear the arraylist with beacons
         beaconIdToNumberOfReads.clear();
         beaconIdToRssiSum.clear();
+    }
+
+    private void createBluetoothAdapter() {
+        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        if (bluetoothAdapter != null) {
+            bluetoothLeScanner = bluetoothAdapter.getBluetoothLeScanner();
+        }
+    }
+
+    //For emulator use
+    private void loadBeacons() {
+        //Composition
+        beacons.add(new Beacon("C8232AFA1B79451BAD2ABB716704A8BF", 20));
+        beaconIdToNumberOfReads.put("C8232AFA1B79451BAD2ABB716704A8BF", 1);
+        beaconIdToRssiSum.put("C8232AFA1B79451BAD2ABB716704A8BF", 20);
+
+        //Mona Lisa
+        beacons.add(new Beacon("C58C6FC8479A419FA040EE34575CAD04", 30));
+        beaconIdToNumberOfReads.put("C58C6FC8479A419FA040EE34575CAD04", 1);
+        beaconIdToRssiSum.put("C58C6FC8479A419FA040EE34575CAD04", 24);
+
+        //School-of-Athen
+        beacons.add(new Beacon("24AB8B4EFD8C4E45AC79DFF20EF814A6", 40));
+        beaconIdToNumberOfReads.put("24AB8B4EFD8C4E45AC79DFF20EF814A6", 1);
+        beaconIdToRssiSum.put("24AB8B4EFD8C4E45AC79DFF20EF814A6", 30);
     }
 
     private void setScanSettings() {
@@ -229,6 +255,7 @@ public class MainActivity extends AppCompatActivity {
         mScanSettings = mBuilder.build();
     }
 
+    /* Använder vi ens denna? */
     private void scanFilters() {
         scanFilters = new ArrayList<>();
         ScanFilter scanFilterName = new ScanFilter.Builder().setManufacturerData(76, null).build();
@@ -236,5 +263,3 @@ public class MainActivity extends AppCompatActivity {
     }
 }
 
-//Snygga till kod
-//Fixa UI (bildstorlek, detaljsida mm.)

@@ -2,4 +2,8 @@
     <string name="app_name">MuseumApplication</string>
     <string name="artwork_title_text">Artwork title</string>
     <string name="artwork_author_text">Author name</string>
+    <string name="artwork_info_text">Info about artwork</string>
+    <string name="scanning_text">Searching for nearby artworks... </string>
+    <string name="scanBtn_text">Scan</string>
+    <string name="scanning_startScanning_text">Start scanning to find nearby artworks!</string>
 </resources>

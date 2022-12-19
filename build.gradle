@@ -9,6 +9,4 @@ task clean(type: Delete) {
 }
 
 repositories {
-    google()
-    mavenCentral()
 }

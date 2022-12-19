@@ -9,6 +9,7 @@ import android.view.View;
 
 import se.umu.nien1121.museumapplication.databinding.ActivityMainBinding;
 import se.umu.nien1121.museumapplication.databinding.ActivityStartBinding;
+import se.umu.nien1121.museumapplication.utils.ActionBarHelper;
 
 public class StartActivity extends AppCompatActivity {
     private ActivityStartBinding binding;
@@ -18,6 +19,7 @@ public class StartActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityStartBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        ActionBarHelper.setActionBar(this, "Homepage");
 
         binding.scanBtn.setOnClickListener(new View.OnClickListener(){
 

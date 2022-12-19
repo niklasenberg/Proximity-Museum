@@ -6,4 +6,5 @@
     <string name="scanning_text">Searching for nearby artworks... </string>
     <string name="scanBtn_text">Scan</string>
     <string name="scanning_startScanning_text">Start scanning to find nearby artworks!</string>
+    <string name="artwork_completionYear_text">Year of creation</string>
 </resources>

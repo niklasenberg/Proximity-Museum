@@ -46,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
     private BluetoothLeScanner bluetoothLeScanner;
     private ScanSettings mScanSettings;
     private List<ScanFilter> scanFilters;
+    private boolean isScanning;
 
     private ArrayList<Beacon> beacons = new ArrayList<>();
     private HashMap<String, Integer> beaconIdToNumberOfReads = new HashMap<>();
@@ -66,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
                     StringBuilder sb = new StringBuilder();
                     int rssi = result.getRssi(); //rssi
 
+
                     for (int i = 2; i < 18; i++) {
                         sb.append(String.format("%02x", dataValues[i]));
                     }
@@ -73,6 +75,8 @@ public class MainActivity extends AppCompatActivity {
                     String id = sb.toString().toUpperCase(); //id
 
                     for (Beacon b : beacons) {
+                        Log.d("Rssi", String.valueOf(rssi));
+
                         if (b.getId().equals(id)) {
                             beaconIdToNumberOfReads.put(id, beaconIdToNumberOfReads.get(id) + 1);
                             beaconIdToRssiSum.put(id, beaconIdToRssiSum.get(id) + rssi);
@@ -103,8 +107,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
         ActionBarHelper.setActionBar(this, "Scanning");
 
-        startScanning();
         createBluetoothAdapter();
+        startScanning();
 
         binding.scanBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -142,7 +146,7 @@ public class MainActivity extends AppCompatActivity {
                     protected ArrayList<Beacon> doInBackground(Integer... params) {
 
                         //For emulator use
-                        loadBeacons();
+                        //loadBeacons();
 
                         //Set mean value for rssi and number of reads and creat JSON object
                         for (Beacon beacon : beacons) {

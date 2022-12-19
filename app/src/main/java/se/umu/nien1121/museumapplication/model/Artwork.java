@@ -8,15 +8,15 @@ import java.util.Arrays;
 public class Artwork implements Parcelable {
     private String title;
     private String artistName;
-    private int completionYear;
+    private int completitionYear;
     private String[] styles;
     private String description;
     private String image;
 
-    public Artwork(String title, String artistName, int completionYear, String[] styles, String description, String image) {
+    public Artwork(String title, String artistName, int completitionYear, String[] styles, String description, String image) {
         this.title = title;
         this.artistName = artistName;
-        this.completionYear = completionYear;
+        this.completitionYear = completitionYear;
         this.styles = styles;
         this.description = description;
         this.image = image;
@@ -25,7 +25,7 @@ public class Artwork implements Parcelable {
     protected Artwork(Parcel in) {
         this.title = in.readString();
         this.artistName = in.readString();
-        this.completionYear = in.readInt();
+        this.completitionYear = in.readInt();
         this.styles = in.createStringArray();
         this.description = in.readString();
         this.image = in.readString();
@@ -39,8 +39,8 @@ public class Artwork implements Parcelable {
         return artistName;
     }
 
-    public int getCompletionYear() {
-        return completionYear;
+    public int getCompletitionYear() {
+        return completitionYear;
     }
 
     public String[] getStyles() {
@@ -57,7 +57,7 @@ public class Artwork implements Parcelable {
 
     @Override
     public String toString() {
-        return "Artwork{" + "title='" + title + '\'' + ", artistName='" + artistName + '\'' + ", completitionYear=" + completionYear + ", styles=" + Arrays.toString(styles) + ", description='" + description + '\'' + ", image='" + image + '\'' + '}';
+        return "Artwork{" + "title='" + title + '\'' + ", artistName='" + artistName + '\'' + ", completitionYear=" + completitionYear + ", styles=" + Arrays.toString(styles) + ", description='" + description + '\'' + ", image='" + image + '\'' + '}';
     }
 
     @Override
@@ -69,7 +69,7 @@ public class Artwork implements Parcelable {
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeString(title);
         parcel.writeString(artistName);
-        parcel.writeInt(completionYear);
+        parcel.writeInt(completitionYear);
         parcel.writeStringArray(styles);
         parcel.writeString(description);
         parcel.writeString(image);

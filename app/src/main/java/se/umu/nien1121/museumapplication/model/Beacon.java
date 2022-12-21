@@ -4,35 +4,53 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 public class Beacon implements Comparable<Beacon>, Parcelable {
+    public static final int OUTLIER_BOUNDARY_VALUE = 10;
     private final String id;
     private Artwork artwork;
-    private int rssi;
+    private int latestRssi;
+    private int rssiSum;
+    private int numberOfReads;
 
-    public Beacon(String id, int rssi) {
+    public Beacon(String id) {
         this.id = id;
-        this.rssi = Math.abs(rssi);
     }
 
     protected Beacon(Parcel in) {
         id = in.readString();
         artwork = in.readParcelable(Artwork.class.getClassLoader());
-        rssi = in.readInt();
+        latestRssi = in.readInt();
+        rssiSum = in.readInt();
+        numberOfReads = in.readInt();
+    }
+
+    public void incrementNumberOfReads() {
+        numberOfReads++;
+    }
+
+    public void addToRssiSum(int addend) {
+        rssiSum += Math.abs(addend);
+    }
+
+    public void addNewScan(int rssi) {
+        int difference = Math.abs(rssi - latestRssi);
+
+        if (difference < OUTLIER_BOUNDARY_VALUE) {
+            latestRssi = Math.abs(rssi);
+            incrementNumberOfReads();
+            addToRssiSum(rssi);
+        }
     }
 
     public String getId() {
         return id;
     }
 
-    public int getRssi() {
-        return rssi;
+    public int getAverageRssi() {
+        return rssiSum / numberOfReads;
     }
 
     public Artwork getArtwork() {
         return artwork;
-    }
-
-    public void setRssi(int rssi) {
-        this.rssi = Math.abs(rssi);
     }
 
     public void setArtwork(Artwork artwork) {
@@ -41,12 +59,12 @@ public class Beacon implements Comparable<Beacon>, Parcelable {
 
     @Override
     public String toString() {
-        return "Beacon{" + "id='" + id + '\'' + ", artwork=" + artwork + ", rssi=" + rssi + '}';
+        return "Beacon{" + "id='" + id + '\'' + ", artwork=" + artwork + ", rssi=" + getAverageRssi() + '}';
     }
 
     @Override
     public int compareTo(Beacon beacon) {
-        return rssi - beacon.rssi;
+        return getAverageRssi() - beacon.getAverageRssi();
     }
 
     @Override
@@ -58,7 +76,9 @@ public class Beacon implements Comparable<Beacon>, Parcelable {
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeString(id);
         parcel.writeParcelable(artwork, 1);
-        parcel.writeInt(rssi);
+        parcel.writeInt(latestRssi);
+        parcel.writeInt(rssiSum);
+        parcel.writeInt(numberOfReads);
     }
 
     public static final Creator<Beacon> CREATOR = new Creator<Beacon>() {

@@ -19,7 +19,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.SparseArray;
-import android.view.View;
 
 import com.google.gson.Gson;
 
@@ -27,7 +26,6 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -48,9 +46,7 @@ public class MainActivity extends AppCompatActivity {
     private List<ScanFilter> scanFilters;
     private boolean isScanning;
 
-    private ArrayList<Beacon> beacons = new ArrayList<>();
-    private HashMap<String, Integer> beaconIdToNumberOfReads = new HashMap<>();
-    private HashMap<String, Integer> beaconIdToRssiSum = new HashMap<>();
+    private final ArrayList<Beacon> beacons = new ArrayList<>();
 
     protected final ScanCallback mScanCallback = new ScanCallback() {
 
@@ -65,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
 
                 if (dataValues != null && dataValues.length == 23 && dataValues[0] == (byte) 0x02 && dataValues[22] == (byte) 0xc5) {
                     StringBuilder sb = new StringBuilder();
-                    int rssi = result.getRssi(); //rssi
+                    int rssi = Math.abs(result.getRssi()); //rssi
 
 
                     for (int i = 2; i < 18; i++) {
@@ -78,16 +74,14 @@ public class MainActivity extends AppCompatActivity {
                         Log.d("Rssi", String.valueOf(rssi));
 
                         if (b.getId().equals(id)) {
-                            beaconIdToNumberOfReads.put(id, beaconIdToNumberOfReads.get(id) + 1);
-                            beaconIdToRssiSum.put(id, beaconIdToRssiSum.get(id) + rssi);
+                            b.addNewScan(rssi);
                             return;
                         }
                     }
 
-                    Beacon beacon = new Beacon(id, rssi);
+                    Beacon beacon = new Beacon(id);
                     beacons.add(beacon);
-                    beaconIdToNumberOfReads.put(id, 1);
-                    beaconIdToRssiSum.put(id, rssi);
+                    beacon.addNewScan(rssi);
                 }
             } else {
                 Log.d("MainActivity", mScanRecord.toString());
@@ -110,24 +104,20 @@ public class MainActivity extends AppCompatActivity {
         createBluetoothAdapter();
         startScanning();
 
-        binding.scanBtn.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                startScanning();
-            }
-        });
+        binding.scanBtn.setOnClickListener(v -> startScanning());
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        clearBeaconStorage();
+        beacons.clear();
     }
 
     public class TimerClass {
         Timer timer = new Timer();
 
         TimerClass(int seconds) {
-            timer.schedule(new RemindTask(), seconds * 1000);
+            timer.schedule(new RemindTask(), seconds * 1000L);
         }
 
         class RemindTask extends TimerTask {
@@ -150,10 +140,7 @@ public class MainActivity extends AppCompatActivity {
 
                         //Set mean value for rssi and number of reads and creat JSON object
                         for (Beacon beacon : beacons) {
-                            int numberOfReads = beaconIdToNumberOfReads.get(beacon.getId());
-                            int rssiSum = beaconIdToRssiSum.get(beacon.getId());
-                            beacon.setRssi(rssiSum / numberOfReads);
-                            createJSON(beacon);
+                            fetchArtwork(beacon);
                         }
 
                         Collections.sort(beacons);
@@ -184,7 +171,7 @@ public class MainActivity extends AppCompatActivity {
         //Check bluetooth permissions
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
 
-            //If API level is 31 or higher check BLUETOOTH_SCAN premission
+            //If API level is 31 or higher check BLUETOOTH_SCAN permission
             if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED)
                 ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.BLUETOOTH_SCAN}, 0);
             Log.d("MainActivity", "Premission not granted");
@@ -210,7 +197,7 @@ public class MainActivity extends AppCompatActivity {
         binding.scanBtn.setBackgroundColor(getResources().getColor(R.color.grey));
     }
 
-    private void createJSON(Beacon beacon) {
+    private void fetchArtwork(Beacon beacon) {
         try {
             String url = "http://85.230.192.244/painting?id=" + beacon.getId();
             JSONObject artworkInfo = JsonReader.readJsonFromUrl(url);
@@ -219,12 +206,6 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
-    }
-
-    private void clearBeaconStorage() {
-        beacons.clear(); //Clear the arraylist with beacons
-        beaconIdToNumberOfReads.clear();
-        beaconIdToRssiSum.clear();
     }
 
     private void createBluetoothAdapter() {
@@ -237,19 +218,22 @@ public class MainActivity extends AppCompatActivity {
     //For emulator use
     private void loadBeacons() {
         //Composition
-        beacons.add(new Beacon("C8232AFA1B79451BAD2ABB716704A8BF", 20));
-        beaconIdToNumberOfReads.put("C8232AFA1B79451BAD2ABB716704A8BF", 1);
-        beaconIdToRssiSum.put("C8232AFA1B79451BAD2ABB716704A8BF", 20);
+        Beacon compositionBeacon = new Beacon("C8232AFA1B79451BAD2ABB716704A8BF");
+        compositionBeacon.incrementNumberOfReads();
+        compositionBeacon.addToRssiSum(20);
+        beacons.add(compositionBeacon);
 
         //Mona Lisa
-        beacons.add(new Beacon("C58C6FC8479A419FA040EE34575CAD04", 30));
-        beaconIdToNumberOfReads.put("C58C6FC8479A419FA040EE34575CAD04", 1);
-        beaconIdToRssiSum.put("C58C6FC8479A419FA040EE34575CAD04", 24);
+        Beacon monaBeacon = new Beacon("C58C6FC8479A419FA040EE34575CAD04");
+        monaBeacon.incrementNumberOfReads();
+        monaBeacon.addToRssiSum(24);
+        beacons.add(monaBeacon);
 
         //School-of-Athen
-        beacons.add(new Beacon("24AB8B4EFD8C4E45AC79DFF20EF814A6", 40));
-        beaconIdToNumberOfReads.put("24AB8B4EFD8C4E45AC79DFF20EF814A6", 1);
-        beaconIdToRssiSum.put("24AB8B4EFD8C4E45AC79DFF20EF814A6", 30);
+        Beacon athensBeacon = new Beacon("24AB8B4EFD8C4E45AC79DFF20EF814A6");
+        athensBeacon.addToRssiSum(30);
+        athensBeacon.incrementNumberOfReads();
+        beacons.add(athensBeacon);
     }
 
     private void setScanSettings() {

@@ -15,7 +15,7 @@ app.get('/painting', (req, res) => {
     fetch(url, settings)
         .then(res => res.json())
         .then((json) => {
-            res.json(json)
+            res.send(json)
         });
 })
 

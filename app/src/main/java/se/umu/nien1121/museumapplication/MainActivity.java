@@ -71,7 +71,6 @@ public class MainActivity extends AppCompatActivity {
                     String id = sb.toString().toUpperCase(); //id
 
                     for (Beacon b : beacons) {
-                        Log.d("Rssi", String.valueOf(rssi));
 
                         if (b.getId().equals(id)) {
                             b.addNewScan(rssi);
@@ -141,8 +140,8 @@ public class MainActivity extends AppCompatActivity {
                         //Set mean value for rssi and number of reads and creat JSON object
                         for (Beacon beacon : beacons) {
                             fetchArtwork(beacon);
+                            System.out.println(beacon.toString());
                         }
-
                         Collections.sort(beacons);
                         return beacons;
                     }

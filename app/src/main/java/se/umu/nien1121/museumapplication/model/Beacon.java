@@ -2,6 +2,7 @@ package se.umu.nien1121.museumapplication.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 public class Beacon implements Comparable<Beacon>, Parcelable {
     public static final int OUTLIER_BOUNDARY_VALUE = 10;
@@ -32,12 +33,20 @@ public class Beacon implements Comparable<Beacon>, Parcelable {
     }
 
     public void addNewScan(int rssi) {
-        int difference = Math.abs(rssi - latestRssi);
 
-        if (difference < OUTLIER_BOUNDARY_VALUE) {
+        if (latestRssi == 0) {
             latestRssi = Math.abs(rssi);
             incrementNumberOfReads();
             addToRssiSum(rssi);
+        } else {
+            int difference = Math.abs(rssi - latestRssi);
+            System.out.println("Difference: " + difference);
+
+            if (difference < OUTLIER_BOUNDARY_VALUE) {
+                latestRssi = Math.abs(rssi);
+                incrementNumberOfReads();
+                addToRssiSum(rssi);
+            }
         }
     }
 

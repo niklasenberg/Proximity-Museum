@@ -28,6 +28,7 @@
             android:text="Searching for nearby artworks... "
             android:textAlignment="center"
             android:textSize="20dp"
+            android:fontFamily="sans-serif-light"
 
             app:layout_constraintBottom_toTopOf="@+id/progressBar"
             app:layout_constraintEnd_toEndOf="@id/progressBar"
@@ -57,13 +58,13 @@
             android:id="@+id/scanBtn"
             android:layout_width="120dp"
             android:layout_height="wrap_content"
+            android:fontFamily="sans-serif"
             android:text="Scan"
             android:textColor="#FFFFFF"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@id/progressBar"
-            />
+            app:layout_constraintTop_toTopOf="@id/progressBar" />
 
         <View
             android:layout_width="1dp"

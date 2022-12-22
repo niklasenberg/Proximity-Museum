@@ -33,7 +33,9 @@
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="78dp"
         android:text="SCAN"
-        android:textColor="#FFFFFF" />
+        android:textColor="#FFFFFF"
+        android:fontFamily="sans-serif"
+        />
 
     <TextView
         android:id="@+id/textView2"

@@ -19,6 +19,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.SparseArray;
+import android.view.View;
 
 import com.google.gson.Gson;
 
@@ -44,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
     private BluetoothLeScanner bluetoothLeScanner;
     private ScanSettings mScanSettings;
     private List<ScanFilter> scanFilters;
-    private boolean isScanning;
+    private boolean created;
 
     private final ArrayList<Beacon> beacons = new ArrayList<>();
 
@@ -93,6 +94,7 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -103,13 +105,22 @@ public class MainActivity extends AppCompatActivity {
         createBluetoothAdapter();
         startScanning();
 
+        Log.d("TAG", "onCreate() called");
         binding.scanBtn.setOnClickListener(v -> startScanning());
+
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         beacons.clear();
+
+        if (created){
+            binding.textLoading.setText(R.string.scanning_startScanning_text);
+            binding.scanBtn.setTextColor(getResources().getColor(R.color.white));
+            binding.gifImageView.setVisibility(View.INVISIBLE);
+        }
+        Log.d("TAG", "onResume() called");
     }
 
     public class TimerClass {
@@ -133,6 +144,7 @@ public class MainActivity extends AppCompatActivity {
                 new AsyncTask<Integer, ArrayList<Beacon>, ArrayList<Beacon>>() {
                     @Override
                     protected ArrayList<Beacon> doInBackground(Integer... params) {
+                        Log.d("TAG", "doInBackround() called");
 
                         //For emulator use
                         loadBeacons();
@@ -140,7 +152,6 @@ public class MainActivity extends AppCompatActivity {
                         //Set mean value for rssi and number of reads and creat JSON object
                         for (Beacon beacon : beacons) {
                             fetchArtwork(beacon);
-                            System.out.println(beacon.toString());
                         }
                         Collections.sort(beacons);
                         return beacons;
@@ -148,9 +159,10 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     protected void onPostExecute(ArrayList<Beacon> beacons) {
-
+                        Log.d("TAG", "onPostExecute() called");
                         binding.scanBtn.setEnabled(true);
                         binding.scanBtn.setBackgroundColor(getResources().getColor(R.color.brown));
+                        created = true;
 
                         if (beacons.size() > 0) {
                             Intent resultIntent = new Intent(MainActivity.this, ResultsActivity.class);
@@ -164,6 +176,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startScanning() {
+        binding.gifImageView.setVisibility(View.VISIBLE);
+        binding.textLoading.setText(R.string.scanning_text);
+        binding.scanBtn.setEnabled(false);
+        binding.scanBtn.setBackgroundColor(getResources().getColor(R.color.grey));
+        binding.scanBtn.setTextColor(getResources().getColor(R.color.light_grey));
 
         new TimerClass(SCAN_PERIOD);
 
@@ -183,17 +200,16 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
+
         Log.d("MainActivity", "Granted, börjar scanna");
         setScanSettings();
         scanFilters();
-        binding.scanBtn.setBackgroundColor(getResources().getColor(R.color.grey));
+
 
         if (bluetoothLeScanner != null) {
             bluetoothLeScanner.startScan(scanFilters, mScanSettings, mScanCallback);
         }
 
-        binding.scanBtn.setEnabled(false);
-        binding.scanBtn.setBackgroundColor(getResources().getColor(R.color.grey));
     }
 
     private void fetchArtwork(Beacon beacon) {
@@ -221,18 +237,21 @@ public class MainActivity extends AppCompatActivity {
         compositionBeacon.incrementNumberOfReads();
         compositionBeacon.addToRssiSum(20);
         beacons.add(compositionBeacon);
+        compositionBeacon.addNewScan(20);
 
         //Mona Lisa
         Beacon monaBeacon = new Beacon("C58C6FC8479A419FA040EE34575CAD04");
         monaBeacon.incrementNumberOfReads();
         monaBeacon.addToRssiSum(24);
         beacons.add(monaBeacon);
+        monaBeacon.addNewScan(24);
 
         //School-of-Athen
         Beacon athensBeacon = new Beacon("24AB8B4EFD8C4E45AC79DFF20EF814A6");
         athensBeacon.addToRssiSum(30);
         athensBeacon.incrementNumberOfReads();
         beacons.add(athensBeacon);
+        athensBeacon.addNewScan(30);
     }
 
     private void setScanSettings() {

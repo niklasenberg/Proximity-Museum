@@ -39,14 +39,20 @@ public class ArtworkActivity extends AppCompatActivity {
                 startActivity(artistIntent);
             }
         });
-        binding.artworkInfoText.setText(artwork.getDescription());
+
+        if (!artwork.getDescription().isEmpty()){
+            binding.artworkInfoText.setText(artwork.getDescription());
+        } else {
+            binding.artworkInfoText.setText("There is no description for this artwork.");
+        }
+
         Log.d("Year", String.valueOf(artwork.getCompletitionYear()));
         // binding.artworkCompletionYearText.setText(artwork.getTitle());
         DownloadImageTask imageTask = new DownloadImageTask(binding.imageView);
         imageTask.execute(artwork.getImage());
 
         if (artwork.getCompletitionYear() != 0) {
-            binding.artworkCompletionYearText.setText(String.valueOf(artwork.getCompletitionYear()));
+            binding.artworkCompletionYearText.setText(String.valueOf("Completion year: " + artwork.getCompletitionYear()));
         } else {
             binding.artworkCompletionYearText.setText("Year not known");
         }

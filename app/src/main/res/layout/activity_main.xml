@@ -26,10 +26,9 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:text="Searching for nearby artworks... "
+            android:textStyle="bold"
             android:textAlignment="center"
             android:textSize="20dp"
-            android:fontFamily="sans-serif-light"
-
             app:layout_constraintBottom_toTopOf="@+id/progressBar"
             app:layout_constraintEnd_toEndOf="@id/progressBar"
             app:layout_constraintStart_toStartOf="parent"

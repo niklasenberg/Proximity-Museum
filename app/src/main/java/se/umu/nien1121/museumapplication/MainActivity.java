@@ -117,8 +117,9 @@ public class MainActivity extends AppCompatActivity {
 
         if (created){
             binding.textLoading.setText(R.string.scanning_startScanning_text);
-            binding.scanBtn.setTextColor(getResources().getColor(R.color.white));
+            binding.scanBtn.setVisibility(View.VISIBLE);
             binding.gifImageView.setVisibility(View.INVISIBLE);
+
         }
         Log.d("TAG", "onResume() called");
     }
@@ -178,9 +179,7 @@ public class MainActivity extends AppCompatActivity {
     private void startScanning() {
         binding.gifImageView.setVisibility(View.VISIBLE);
         binding.textLoading.setText(R.string.scanning_text);
-        binding.scanBtn.setEnabled(false);
-        binding.scanBtn.setBackgroundColor(getResources().getColor(R.color.grey));
-        binding.scanBtn.setTextColor(getResources().getColor(R.color.light_grey));
+        binding.scanBtn.setVisibility(View.INVISIBLE);
 
         new TimerClass(SCAN_PERIOD);
 

@@ -8,14 +8,16 @@ import java.util.Arrays;
 public class Artwork implements Parcelable {
     private String title;
     private String artistName;
+    private String artistId;
     private int completitionYear;
     private String[] styles;
     private String description;
     private String image;
 
-    public Artwork(String title, String artistName, int completitionYear, String[] styles, String description, String image) {
+    public Artwork(String title, String artistName, String artistId, int completitionYear, String[] styles, String description, String image) {
         this.title = title;
         this.artistName = artistName;
+        this.artistId = artistId;
         this.completitionYear = completitionYear;
         this.styles = styles;
         this.description = description;
@@ -25,6 +27,7 @@ public class Artwork implements Parcelable {
     protected Artwork(Parcel in) {
         this.title = in.readString();
         this.artistName = in.readString();
+        this.artistId = in.readString();
         this.completitionYear = in.readInt();
         this.styles = in.createStringArray();
         this.description = in.readString();
@@ -37,6 +40,10 @@ public class Artwork implements Parcelable {
 
     public String getArtistName() {
         return artistName;
+    }
+
+    public String getArtistId() {
+        return artistId;
     }
 
     public int getCompletitionYear() {
@@ -69,6 +76,7 @@ public class Artwork implements Parcelable {
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeString(title);
         parcel.writeString(artistName);
+        parcel.writeString(artistId);
         parcel.writeInt(completitionYear);
         parcel.writeStringArray(styles);
         parcel.writeString(description);

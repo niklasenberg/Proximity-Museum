@@ -135,7 +135,7 @@ public class MainActivity extends AppCompatActivity {
                     protected ArrayList<Beacon> doInBackground(Integer... params) {
 
                         //For emulator use
-                        //loadBeacons();
+                        loadBeacons();
 
                         //Set mean value for rssi and number of reads and creat JSON object
                         for (Beacon beacon : beacons) {

@@ -19,6 +19,16 @@ app.get('/painting', (req, res) => {
         });
 })
 
+app.get('/artist', (req, res) => {
+    let url = "https://www.wikiart.org/en/api/2/PaintingsByArtist?id=" + req.query.id;
+    let settings = {method: "Get"};
+    fetch(url, settings)
+        .then(res => res.json())
+        .then((json) => {
+            res.send(json)
+        });
+})
+
 app.get('/', (req, res) => {
     res.send("Hello world!")
 })

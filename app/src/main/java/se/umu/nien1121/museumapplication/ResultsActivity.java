@@ -33,7 +33,7 @@ public class ResultsActivity extends AppCompatActivity {
         binding = ActivityResultsBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        ActionBarHelper.setActionBar(this, "Paintings");
+        ActionBarHelper.setActionBar(this, "Nearby paintings");
 
         updateList();
     }

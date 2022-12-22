@@ -26,7 +26,7 @@ public class ArtworkActivity extends AppCompatActivity {
         loadUI();
     }
 
-    private void loadUI(){
+    private void loadUI() {
         ActionBarHelper.setActionBar(this, artwork.getTitle());
         binding.artworkNameText.setText(artwork.getTitle());
         binding.artworkArtistText.setText(artwork.getArtistName());
@@ -41,21 +41,14 @@ public class ArtworkActivity extends AppCompatActivity {
         });
         binding.artworkInfoText.setText(artwork.getDescription());
         Log.d("Year", String.valueOf(artwork.getCompletitionYear()));
-       // binding.artworkCompletionYearText.setText(artwork.getTitle());
+        // binding.artworkCompletionYearText.setText(artwork.getTitle());
         DownloadImageTask imageTask = new DownloadImageTask(binding.imageView);
         imageTask.execute(artwork.getImage());
 
-        if (artwork.getCompletitionYear() != 0){
+        if (artwork.getCompletitionYear() != 0) {
             binding.artworkCompletionYearText.setText(String.valueOf(artwork.getCompletitionYear()));
         } else {
             binding.artworkCompletionYearText.setText("Year not known");
         }
-
-    }
-
-
-    @Override
-    protected void onResume() {
-        super.onResume();
     }
 }

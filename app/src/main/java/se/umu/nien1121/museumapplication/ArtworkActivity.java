@@ -40,8 +40,10 @@ public class ArtworkActivity extends AppCompatActivity {
             }
         });
 
-        if (!artwork.getDescription().isEmpty()){
-            binding.artworkInfoText.setText(artwork.getDescription());
+        if (!artwork.getDescription().isEmpty()) {
+            //removes everything within the brackets.
+            String description = artwork.getDescription().replaceAll("\\[.*?\\]","");
+            binding.artworkInfoText.setText(description);
         } else {
             binding.artworkInfoText.setText("There is no description for this artwork.");
         }

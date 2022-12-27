@@ -101,7 +101,6 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         ActionBarHelper.setActionBar(this, "Scanning");
-
         createBluetoothAdapter();
         startScanning();
 

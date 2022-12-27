@@ -2,10 +2,14 @@ package se.umu.nien1121.museumapplication;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.AlertDialog;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 
 import se.umu.nien1121.museumapplication.databinding.ActivityArtworkBinding;
 import se.umu.nien1121.museumapplication.model.Artwork;
@@ -39,24 +43,42 @@ public class ArtworkActivity extends AppCompatActivity {
                 startActivity(artistIntent);
             }
         });
+        setDescription();
 
+        DownloadImageTask imageTask = new DownloadImageTask(binding.imageView);
+        imageTask.execute(artwork.getImage());
+
+        binding.imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                //View the image in full screen
+                AlertDialog.Builder alert = new AlertDialog.Builder(ArtworkActivity.this);
+                ImageView image = new ImageView(ArtworkActivity.this);
+                alert.setView(image);
+                image.setAdjustViewBounds(true);
+                DownloadImageTask imageTask2 = new DownloadImageTask(image);
+                imageTask2.execute(artwork.getImage());
+                alert.show();
+
+            }
+        });
+
+
+        if (artwork.getCompletitionYear() != 0) {
+            binding.artworkCompletionYearText.setText(String.valueOf("Completion year: " + artwork.getCompletitionYear()));
+        } else {
+            binding.artworkCompletionYearText.setText("Year unknown");
+        }
+    }
+
+    private void setDescription() {
         if (!artwork.getDescription().isEmpty()) {
             //removes everything within the brackets.
             String description = artwork.getDescription().replaceAll("\\[.*?\\]","");
             binding.artworkInfoText.setText(description);
         } else {
             binding.artworkInfoText.setText("There is no description for this artwork.");
-        }
-
-        Log.d("Year", String.valueOf(artwork.getCompletitionYear()));
-        // binding.artworkCompletionYearText.setText(artwork.getTitle());
-        DownloadImageTask imageTask = new DownloadImageTask(binding.imageView);
-        imageTask.execute(artwork.getImage());
-
-        if (artwork.getCompletitionYear() != 0) {
-            binding.artworkCompletionYearText.setText(String.valueOf("Completion year: " + artwork.getCompletitionYear()));
-        } else {
-            binding.artworkCompletionYearText.setText("Year not known");
         }
     }
 }

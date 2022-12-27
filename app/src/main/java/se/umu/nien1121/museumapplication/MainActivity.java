@@ -5,6 +5,7 @@ import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
@@ -147,9 +148,9 @@ public class MainActivity extends AppCompatActivity {
                         Log.d("TAG", "doInBackround() called");
 
                         //For emulator use
-                        loadBeacons();
+                        // loadBeacons();
 
-                        //Set mean value for rssi and number of reads and creat JSON object
+                        //Set mean value for rssi and number of reads and create JSON object
                         for (Beacon beacon : beacons) {
                             fetchArtwork(beacon);
                         }
@@ -168,6 +169,12 @@ public class MainActivity extends AppCompatActivity {
                             Intent resultIntent = new Intent(MainActivity.this, ResultsActivity.class);
                             resultIntent.putParcelableArrayListExtra(LIST_KEY, beacons);
                             startActivity(resultIntent);
+                        } else {
+                            AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);
+                            alert.setMessage("No nearby artworks to display.");
+                            alert.setPositiveButton("OK", null);
+                            alert.show();
+                            onResume();
                         }
                     }
                 }.execute(1);

@@ -148,7 +148,7 @@ public class MainActivity extends AppCompatActivity {
                         Log.d("TAG", "doInBackround() called");
 
                         //For emulator use
-                        // loadBeacons();
+                        loadBeacons();
 
                         //Set mean value for rssi and number of reads and create JSON object
                         for (Beacon beacon : beacons) {

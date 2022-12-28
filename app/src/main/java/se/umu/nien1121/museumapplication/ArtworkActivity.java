@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -34,7 +35,8 @@ public class ArtworkActivity extends AppCompatActivity {
         ActionBarHelper.setActionBar(this, artwork.getTitle());
         binding.artworkNameText.setText(artwork.getTitle());
         binding.artworkArtistText.setText(artwork.getArtistName());
-        binding.artworkArtistText.setOnClickListener(new View.OnClickListener() {
+        binding.artworksFromArtistText.setPaintFlags(Paint.UNDERLINE_TEXT_FLAG);
+        binding.artworksFromArtistText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent artistIntent = new Intent(ArtworkActivity.this, ArtistActivity.class);

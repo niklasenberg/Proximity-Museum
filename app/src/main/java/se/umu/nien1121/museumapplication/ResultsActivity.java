@@ -41,7 +41,7 @@ public class ResultsActivity extends AppCompatActivity {
     private void updateList() {
         ArrayList<Artwork> artworks = new ArrayList<>();
         for(Beacon beacon : beacons){
-            if(beacon.getArtwork() != null){
+            if(beacon.getArtwork() != null && artworks.size()<5){
                 artworks.add(beacon.getArtwork());
             }
         }

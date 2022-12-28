@@ -8,5 +8,6 @@
     <string name="scanning_startScanning_text">Start scanning to find nearby artworks!</string>
     <string name="artwork_completionYear_text">Year of creation</string>
     <string name="greetings_text">Welcome</string>
+    <string name="description_text">Description</string>
 
     </resources>

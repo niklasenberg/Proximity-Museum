@@ -75,7 +75,8 @@ public class ArtworkActivity extends AppCompatActivity {
     }
 
     private void setDescription() {
-        if (!artwork.getDescription().isEmpty()) {
+        if (artwork.getDescription() != null && !artwork.getDescription().isEmpty()) {
+
             //removes everything within the brackets.
             String description = artwork.getDescription().replaceAll("\\[.*?\\]","");
             binding.artworkInfoText.setText(description);

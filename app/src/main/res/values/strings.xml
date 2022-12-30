@@ -1,19 +1,23 @@
 <resources>
-    <string name="app_name">MuseumApplication</string>
-    <string name="artwork_title_text">Artwork title</string>
-    <string name="artwork_author_text">Author name</string>
-    <string name="artwork_info_text">Info about artwork</string>
-    <string name="scanning_text">Scanning for nearby artworks... </string>
-    <string name="scanBtn_text">Scan</string>
+
+    //Start activity
+    <string name="actionbar_homepage">Homepage</string>
     <string name="scanning_startScanning_text">Start scanning to find nearby artworks!</string>
-    <string name="artwork_completionYear_text">Year of creation</string>
+    <string name="scanBtn_text">Scan</string>
     <string name="greetings_text">Welcome</string>
+
+    //Main activity
+    <string name="app_name">MuseumApplication</string>
+    <string name="scanning_text">Scanning for nearby artworks... </string>
 
     //Artwork activity
     <string name="description_text">Description</string>
     <string name="unknown_year">Completion year unknown</string>
-    <string name="pretext_year">Completion year: </string>
     <string name="description_not_found">There is no description for this artwork.</string>
+    <string name="artwork_completionYear_text">Year of creation</string>
+    <string name="artwork_title_text">Artwork title</string>
+    <string name="artwork_author_text">Author name</string>
+    <string name="artwork_info_text">Info about artwork</string>
 
 
 

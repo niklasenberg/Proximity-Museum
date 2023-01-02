@@ -225,6 +225,7 @@ public class MainActivity extends AppCompatActivity {
             beacon.setArtwork(gson.fromJson(artworkInfo.toString(), Artwork.class));
         } catch (Exception e) {
             System.out.println(e.getMessage());
+            System.out.println("Konstverk finns inte.");
         }
     }
 

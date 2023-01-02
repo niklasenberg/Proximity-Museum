@@ -41,7 +41,9 @@ public class ResultsActivity extends AppCompatActivity {
     private void updateList() {
         ArrayList<Artwork> artworks = new ArrayList<>();
         for(Beacon beacon : beacons){
-            if(beacon.getArtwork() != null && artworks.size()<5){
+            //An artwork can != null and still have every element null
+            if(beacon.getArtwork().getImage() != null && beacon.getArtwork().getTitle() != null && beacon.getArtwork().getArtistName() != null
+                    && artworks.size()<5){
                 artworks.add(beacon.getArtwork());
             }
         }

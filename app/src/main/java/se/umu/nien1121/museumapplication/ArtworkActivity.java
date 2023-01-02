@@ -1,11 +1,14 @@
 package se.umu.nien1121.museumapplication;
 
 import androidx.appcompat.app.AppCompatActivity;
+
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.graphics.Paint;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.ImageView;
+
 import se.umu.nien1121.museumapplication.databinding.ActivityArtworkBinding;
 import se.umu.nien1121.museumapplication.model.Artwork;
 import se.umu.nien1121.museumapplication.utils.ActionBarHelper;
@@ -71,10 +74,10 @@ public class ArtworkActivity extends AppCompatActivity {
     }
 
     private void setDescription() {
-        if (artwork.getDescription() != null && !artwork.getDescription().isEmpty()){
+        if (artwork.getDescription() != null && !artwork.getDescription().isEmpty()) {
 
             //removes everything within the brackets.
-            String description = artwork.getDescription().replaceAll("\\[.*?\\]","");
+            String description = artwork.getDescription().replaceAll("\\[.*?\\]", "");
             binding.artworkInfoText.setText(description);
         } else {
             binding.artworkInfoText.setText(R.string.description_not_found);

@@ -1,6 +1,7 @@
 package se.umu.nien1121.museumapplication;
 
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -58,7 +59,6 @@ public class ArtworkAdapter extends RecyclerView.Adapter<ArtworkAdapter.ViewHold
         return new ViewHolder(view);
     }
 
-    /*Binder objekt till dataobjekt*/
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, final int position) {
         Artwork artwork = artworks[position];
@@ -68,6 +68,8 @@ public class ArtworkAdapter extends RecyclerView.Adapter<ArtworkAdapter.ViewHold
             viewHolder.author_textView.setText(artwork.getArtistName());
             DownloadImageTask imageTask = new DownloadImageTask(viewHolder.artwork_image);
             imageTask.execute(artwork.getImage());
+        } else {
+            Log.d("NullArtwork", artwork.toString() + " is null");
         }
     }
 

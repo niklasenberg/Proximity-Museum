@@ -15,7 +15,8 @@ import se.umu.nien1121.museumapplication.utils.ActionBarHelper;
  * Activity used for presenting results of {@link ScanActivity}. Only displays the nearest 5 artworks.
  */
 public class ResultsActivity extends AppCompatActivity {
-
+    public static final String RESULT_EXTRA = "RESULT_EXTRA";
+    private static final int MAX_CAPACITY = 5;
     private ActivityResultsBinding binding;
     private ArrayList<Beacon> beacons;
 
@@ -23,11 +24,12 @@ public class ResultsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_results);
-        beacons = getIntent().getParcelableArrayListExtra(ScanActivity.LIST_KEY);
         binding = ActivityResultsBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        ActionBarHelper.setActionBar(this, "Nearby paintings");
+        beacons = getIntent().getParcelableArrayListExtra(RESULT_EXTRA);
+
+        ActionBarHelper.setActionBar(this, getResources().getString(R.string.results_activity_title));
 
         updateList();
     }
@@ -39,7 +41,7 @@ public class ResultsActivity extends AppCompatActivity {
         ArrayList<Artwork> artworks = new ArrayList<>();
         for (Beacon beacon : beacons) {
             //An artwork can != null and still have every element null
-            if (beacon.getArtwork().getImage() != null && beacon.getArtwork().getTitle() != null && beacon.getArtwork().getArtistName() != null && artworks.size() < 5) {
+            if (beacon.getArtwork().getImage() != null && beacon.getArtwork().getTitle() != null && beacon.getArtwork().getArtistName() != null && artworks.size() < MAX_CAPACITY) {
                 artworks.add(beacon.getArtwork());
             }
         }

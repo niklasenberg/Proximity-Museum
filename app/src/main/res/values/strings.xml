@@ -6,19 +6,28 @@
     <string name="scanBtn_text">Scan</string>
     <string name="greetings_text">Welcome</string>
 
-    //Main activity
+    //Scan activity
     <string name="app_name">MuseumApplication</string>
     <string name="scanning_text">Scanning for nearby artworks… </string>
+    <string name="scanning_title">Scanning</string>
+    <string name="no_artworks_found">No nearby artworks to display.</string>
+    <string name="ok_button">OK</string>
+
+    //Results activity
+    <string name="results_activity_title">Nearby paintings</string>
 
     //Artwork activity
     <string name="description_text">Description</string>
     <string name="unknown_year">Completion year unknown</string>
     <string name="description_not_found">There is no description for this artwork.</string>
-    <string name="artwork_completionYear_text">Year of creation</string>
+    <string name="artwork_completionYear_text">Completion year: %1$s</string>
     <string name="artwork_title_text">Artwork title</string>
     <string name="artwork_author_text">Author name</string>
     <string name="artwork_info_text">Info about artwork</string>
     <string name="more_artworks_from_the_artist">More artworks from the artist</string>
+
+    //ArtworksByArtistActivity
+    <string name="artworks_by_artist_title">Paintings by: %1$s</string>
 
 
 </resources>

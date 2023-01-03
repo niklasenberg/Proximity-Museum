@@ -10,7 +10,7 @@ import se.umu.nien1121.museumapplication.databinding.ActivityStartBinding;
 import se.umu.nien1121.museumapplication.utils.ActionBarHelper;
 
 /**
- *
+ * Activity hosting landing page of application
  */
 public class StartActivity extends AppCompatActivity {
     private ActivityStartBinding binding;
@@ -21,16 +21,20 @@ public class StartActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityStartBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
         ActionBarHelper.setActionBar(this, getResources().getString(R.string.actionbar_homepage));
 
         binding.scanBtn.setOnClickListener(view -> {
             binding.scanBtn.setEnabled(false);
             binding.scanBtn.setBackgroundColor(getResources().getColor(R.color.grey));
-            Intent resultIntent = new Intent(StartActivity.this, ScanActivity.class);
-            startActivity(resultIntent);
+            Intent scanIntent = new Intent(StartActivity.this, ScanActivity.class);
+            startActivity(scanIntent);
         });
     }
 
+    /**
+     * Resets UI on return to Activity
+     */
     @Override
     protected void onResume() {
         binding.scanBtn.setEnabled(true);

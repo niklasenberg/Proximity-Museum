@@ -29,6 +29,7 @@ public class ArtworkActivity extends AppCompatActivity {
         binding = ActivityArtworkBinding.inflate(getLayoutInflater());
         artwork = getIntent().getParcelableExtra(ARTWORK_EXTRA);
         setContentView(binding.getRoot());
+
         loadUI();
     }
 
@@ -37,19 +38,45 @@ public class ArtworkActivity extends AppCompatActivity {
      */
     private void loadUI() {
         ActionBarHelper.setActionBar(this, artwork.getTitle());
+
         binding.artworkNameText.setText(artwork.getTitle());
         binding.artworkArtistText.setText(artwork.getArtistName());
         binding.artworksFromArtistText.setPaintFlags(Paint.UNDERLINE_TEXT_FLAG);
         binding.artworksFromArtistText.setOnClickListener(view -> {
-            Intent artistIntent = new Intent(ArtworkActivity.this, ArtistActivity.class);
-            artistIntent.putExtra(ArtistActivity.ARTIST_NAME_EXTRA, artwork.getArtistName());
-            artistIntent.putExtra(ArtistActivity.ARTIST_ID_EXTRA, artwork.getArtistId());
+            Intent artistIntent = new Intent(ArtworkActivity.this, ArtworksFromArtistActivity.class);
+            artistIntent.putExtra(ArtworksFromArtistActivity.ARTIST_NAME_EXTRA, artwork.getArtistName());
+            artistIntent.putExtra(ArtworksFromArtistActivity.ARTIST_ID_EXTRA, artwork.getArtistId());
             startActivity(artistIntent);
         });
+
         setDescription();
         setCompletionYear();
         setImage();
         makeImageClickable();
+    }
+
+    /**
+     * Helper method for null-checking and formatting description of {@link Artwork}.
+     */
+    private void setDescription() {
+        if (artwork.getDescription() != null && !artwork.getDescription().isEmpty()) {
+            //removes everything within the brackets.
+            String description = artwork.getDescription().replaceAll("\\[.*?]", "");
+            binding.artworkInfoText.setText(description);
+        } else {
+            binding.artworkInfoText.setText(R.string.description_not_found);
+        }
+    }
+
+    /**
+     * Helper method for null-checking completion year of {@link Artwork}.
+     */
+    private void setCompletionYear() {
+        if (artwork.getCompletitionYear() != 0) {
+            binding.artworkCompletionYearText.setText(getString(R.string.artwork_completionYear_text, String.valueOf(artwork.getCompletitionYear())));
+        } else {
+            binding.artworkCompletionYearText.setText(R.string.unknown_year);
+        }
     }
 
     /**
@@ -70,34 +97,9 @@ public class ArtworkActivity extends AppCompatActivity {
             ImageView image = new ImageView(ArtworkActivity.this);
             alert.setView(image);
             image.setAdjustViewBounds(true);
-            DownloadImageTask imageTask2 = new DownloadImageTask(image);
-            imageTask2.execute(artwork.getImage());
+            DownloadImageTask imageTask = new DownloadImageTask(image);
+            imageTask.execute(artwork.getImage());
             alert.show();
-
         });
-    }
-
-    /**
-     * Helper method for null-checking completion year of {@link Artwork}.
-     */
-    private void setCompletionYear() {
-        if (artwork.getCompletitionYear() != 0) {
-            binding.artworkCompletionYearText.setText("Completion year: " + artwork.getCompletitionYear());
-        } else {
-            binding.artworkCompletionYearText.setText(R.string.unknown_year);
-        }
-    }
-
-    /**
-     * Helper method for null-checking description of {@link Artwork}.
-     */
-    private void setDescription() {
-        if (artwork.getDescription() != null && !artwork.getDescription().isEmpty()) {
-            //removes everything within the brackets.
-            String description = artwork.getDescription().replaceAll("\\[.*?]", "");
-            binding.artworkInfoText.setText(description);
-        } else {
-            binding.artworkInfoText.setText(R.string.description_not_found);
-        }
     }
 }

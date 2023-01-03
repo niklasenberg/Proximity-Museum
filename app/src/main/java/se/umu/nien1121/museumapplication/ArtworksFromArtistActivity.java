@@ -13,7 +13,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-import se.umu.nien1121.museumapplication.databinding.ActivityArtistBinding;
+import se.umu.nien1121.museumapplication.databinding.ActivityArtworksFromArtistBinding;
 import se.umu.nien1121.museumapplication.model.Artwork;
 import se.umu.nien1121.museumapplication.utils.ActionBarHelper;
 import se.umu.nien1121.museumapplication.utils.JsonReader;
@@ -21,37 +21,27 @@ import se.umu.nien1121.museumapplication.utils.JsonReader;
 /**
  * Activity displaying {@link Artwork} objects made by a specific artist.
  */
-public class ArtistActivity extends AppCompatActivity {
+public class ArtworksFromArtistActivity extends AppCompatActivity {
     //Constants
     public static final String ARTIST_NAME_EXTRA = "ARTIST_NAME_EXTRA";
     public static final String ARTIST_ID_EXTRA = "ARTIST_ID_EXTRA";
 
-    private ActivityArtistBinding binding;
+    private ActivityArtworksFromArtistBinding binding;
     private String artistName;
     private String artistId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = ActivityArtistBinding.inflate(getLayoutInflater());
+        binding = ActivityArtworksFromArtistBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         //Get Artist info from Intent
         this.artistName = getIntent().getStringExtra(ARTIST_NAME_EXTRA);
         this.artistId = getIntent().getStringExtra(ARTIST_ID_EXTRA);
 
-        ActionBarHelper.setActionBar(this, "Paintings by " + artistName);
+        ActionBarHelper.setActionBar(this, getString(R.string.artworks_by_artist_title, artistName));
         fetchArtworks();
-    }
-
-    /**
-     * Helper method used to update {@link androidx.recyclerview.widget.RecyclerView} using {@link ArtworkAdapter}.
-     *
-     * @param artworks {@link Artwork} objects to be displayed.
-     */
-    private void updateList(ArrayList<Artwork> artworks) {
-        ArtworkAdapter adapter = new ArtworkAdapter(this, artworks);
-        binding.artworkRecyclerView.setAdapter(adapter);
     }
 
     /**
@@ -89,5 +79,15 @@ public class ArtistActivity extends AppCompatActivity {
                 updateList(artworks);
             }
         }.execute(1);
+    }
+
+    /**
+     * Helper method used to update {@link androidx.recyclerview.widget.RecyclerView} using {@link ArtworkAdapter}.
+     *
+     * @param artworks {@link Artwork} objects to be displayed.
+     */
+    private void updateList(ArrayList<Artwork> artworks) {
+        ArtworkAdapter adapter = new ArtworkAdapter(this, artworks);
+        binding.artworkRecyclerView.setAdapter(adapter);
     }
 }

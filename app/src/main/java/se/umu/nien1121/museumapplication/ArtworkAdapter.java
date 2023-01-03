@@ -35,6 +35,20 @@ public class ArtworkAdapter extends RecyclerView.Adapter<ArtworkAdapter.ViewHold
     }
 
     /**
+     * Given a custom view, creates {@link ViewHolder} to store artwork info in.
+     *
+     * @param viewGroup - "The ViewGroup into which the new View will be added after it is bound to an adapter position."
+     * @param viewType  – "The view type of the new View"
+     * @return a new ViewHolder object
+     */
+    @Override
+    @NonNull
+    public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
+        View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.list_item_artwork, viewGroup, false);
+        return new ViewHolder(view);
+    }
+
+    /**
      * Custom {@link RecyclerView.ViewHolder} which specifies custom layout of artworks.
      */
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -52,27 +66,12 @@ public class ArtworkAdapter extends RecyclerView.Adapter<ArtworkAdapter.ViewHold
 
             //Set listeners
             cardView.setOnClickListener(view1 -> {
-                System.out.println("Clicked");
                 Intent artworkIntent = new Intent(activity, ArtworkActivity.class);
                 Artwork artwork = ArtworkAdapter.this.artworks[getAdapterPosition()];
                 artworkIntent.putExtra(ArtworkActivity.ARTWORK_EXTRA, artwork);
                 activity.startActivity(artworkIntent);
             });
         }
-    }
-
-    /**
-     * Given a custom view, creates {@link ViewHolder} to store artwork info in.
-     *
-     * @param viewGroup - "The ViewGroup into which the new View will be added after it is bound to an adapter position."
-     * @param viewType  – "The view type of the new View"
-     * @return a new ViewHolder object
-     */
-    @Override
-    @NonNull
-    public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
-        View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.list_item_artwork, viewGroup, false);
-        return new ViewHolder(view);
     }
 
     /**

@@ -10,7 +10,7 @@ import androidx.annotation.NonNull;
  * Implements {@link Comparable<Beacon>} for sorting purposes.
  */
 public class Beacon implements Comparable<Beacon>, Parcelable {
-    public static final int OUTLIER_BOUNDARY_VALUE = 10;
+    private static final int OUTLIER_BOUNDARY_VALUE = 10;
     private final String id;
     private Artwork artwork;
     private int latestRssi;
@@ -19,6 +19,7 @@ public class Beacon implements Comparable<Beacon>, Parcelable {
 
     /**
      * Constructor which creates entirely new Beacon object
+     *
      * @param id the id-serial of the beacon to be created
      */
     public Beacon(String id) {
@@ -27,6 +28,7 @@ public class Beacon implements Comparable<Beacon>, Parcelable {
 
     /**
      * Constructor which creates Beacon objects from priorly established {@link Parcel}.
+     *
      * @param in {@link Parcel} object which contains Beacon information.
      */
     protected Beacon(Parcel in) {
@@ -38,35 +40,30 @@ public class Beacon implements Comparable<Beacon>, Parcelable {
     }
 
     /**
-     * Preserves count of how many times this beacon has been scanned.
+     * Evaluates whether latest scan result is valid
+     *
+     * @param rssi new signal strength value
      */
-    public void incrementNumberOfReads() {
-        numberOfReads++;
+    public void evaluateScan(int rssi) {
+        if (latestRssi == 0) { //If first scan result
+            addNewScan(rssi);
+        } else {
+            int difference = Math.abs(rssi - latestRssi);
+            if (difference < OUTLIER_BOUNDARY_VALUE) { //If within boundary value
+                addNewScan(rssi);
+            }
+        }
     }
 
     /**
-     * Adds rssi-value to total sum of values (rssiSum), for average calculation purposes.
-     * @param addend rssi value to be added (positive)
+     * Adds valid RSSI value to cache
+     *
+     * @param rssi new signal strength value to be added
      */
-    public void addToRssiSum(int addend) {
-        rssiSum += Math.abs(addend);
-    }
-
-    public void addNewScan(int rssi) {
-        if (latestRssi == 0) {
-            latestRssi = Math.abs(rssi);
-            incrementNumberOfReads();
-            addToRssiSum(rssi);
-        } else {
-            int difference = Math.abs(rssi - latestRssi);
-            System.out.println("Difference: " + difference);
-
-            if (difference < OUTLIER_BOUNDARY_VALUE) {
-                latestRssi = Math.abs(rssi);
-                incrementNumberOfReads();
-                addToRssiSum(rssi);
-            }
-        }
+    private void addNewScan(int rssi) {
+        latestRssi = Math.abs(rssi);
+        numberOfReads++;
+        rssiSum += Math.abs(rssi);
     }
 
     //Getters

@@ -17,7 +17,24 @@ import org.json.JSONObject;
 public class JsonReader {
 
     /**
+     * Utility method used for parsing a url to a {@link JSONObject}.
+     *
+     * @param url url to fetch JSON from
+     * @return JSONObject contaning results from url fetch
+     * @throws IOException   if url is malformed or helper method throws exception.
+     * @throws JSONException if JSONObject can't be created from results of fetch.
+     */
+    public static JSONObject readJsonFromUrl(String url) throws IOException, JSONException {
+        try (InputStream is = new URL(url).openStream()) {
+            BufferedReader rd = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
+            String jsonText = readAll(rd);
+            return new JSONObject(jsonText);
+        }
+    }
+
+    /**
      * Helper method used to convert a {@link Reader}s contents to a string.
+     *
      * @param rd reader object to be examined
      * @return string containing all of the readers contents.
      * @throws IOException if reading from Reader object throws exception
@@ -29,20 +46,5 @@ public class JsonReader {
             sb.append((char) cp);
         }
         return sb.toString();
-    }
-
-    /**
-     * Utility method used for parsing a url to a {@link JSONObject}.
-     * @param url url to fetch JSON from
-     * @return JSONObject contaning results from url fetch
-     * @throws IOException if url is malformed or helper method throws exception.
-     * @throws JSONException if JSONObject can't be created from results of fetch.
-     */
-    public static JSONObject readJsonFromUrl(String url) throws IOException, JSONException {
-        try (InputStream is = new URL(url).openStream()) {
-            BufferedReader rd = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
-            String jsonText = readAll(rd);
-            return new JSONObject(jsonText);
-        }
     }
 }

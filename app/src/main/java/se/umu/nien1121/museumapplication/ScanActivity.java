@@ -286,10 +286,46 @@ public class ScanActivity extends AppCompatActivity {
 
         //School-of-Athen
         Beacon athensBeacon = new Beacon("24AB8B4EFD8C4E45AC79DFF20EF814A6");
-        athensBeacon.addToRssiSum(30);
+        athensBeacon.addToRssiSum(1);
         athensBeacon.incrementNumberOfReads();
         beacons.add(athensBeacon);
-        athensBeacon.addNewScan(30);
+        athensBeacon.addNewScan(1);
+
+        //Ocean
+        Beacon oceanBeacon = new Beacon("4973BCD43AD04793ACA53C3EDB625707");
+        oceanBeacon.addToRssiSum(34);
+        oceanBeacon.incrementNumberOfReads();
+        beacons.add(oceanBeacon);
+        oceanBeacon.addNewScan(34);
+
+        //Flower of life
+        Beacon flowerBeacon = new Beacon("0B723EBF867A41649660DDDADB1B655A");
+        flowerBeacon.addToRssiSum(38);
+        flowerBeacon.incrementNumberOfReads();
+        beacons.add(flowerBeacon);
+        flowerBeacon.addNewScan(38);
+
+        //Animals and figures
+        Beacon animalBeacon = new Beacon("A79234343CCA46CFA796F5F5FAE0300C");
+        animalBeacon.addToRssiSum(10);
+        animalBeacon.incrementNumberOfReads();
+        beacons.add(animalBeacon);
+        animalBeacon.addNewScan(10);
+
+        //In the Forrest
+        Beacon forrestBeacon = new Beacon("26EF226E9A9E416F9C4944710DEF75D8");
+        forrestBeacon.addToRssiSum(15);
+        forrestBeacon.incrementNumberOfReads();
+        beacons.add(forrestBeacon);
+        forrestBeacon.addNewScan(15);
+
+        //Moon Light
+        Beacon moonBeacon = new Beacon("18AC56008F1440ECADBBEEAEB2FC23BB");
+        moonBeacon.addToRssiSum(60);
+        moonBeacon.incrementNumberOfReads();
+        beacons.add(moonBeacon);
+        moonBeacon.addNewScan(60);
+
     }
 }
 

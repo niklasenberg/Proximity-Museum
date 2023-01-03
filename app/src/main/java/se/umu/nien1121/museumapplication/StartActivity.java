@@ -4,6 +4,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
+
 import se.umu.nien1121.museumapplication.databinding.ActivityStartBinding;
 import se.umu.nien1121.museumapplication.utils.ActionBarHelper;
 
@@ -15,6 +17,7 @@ public class StartActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d("StartActivity", "OnCreate");
         super.onCreate(savedInstanceState);
         binding = ActivityStartBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());

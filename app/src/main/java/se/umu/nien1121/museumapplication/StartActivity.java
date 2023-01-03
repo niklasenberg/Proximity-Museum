@@ -7,6 +7,9 @@ import android.os.Bundle;
 import se.umu.nien1121.museumapplication.databinding.ActivityStartBinding;
 import se.umu.nien1121.museumapplication.utils.ActionBarHelper;
 
+/**
+ *
+ */
 public class StartActivity extends AppCompatActivity {
     private ActivityStartBinding binding;
 
@@ -20,7 +23,7 @@ public class StartActivity extends AppCompatActivity {
         binding.scanBtn.setOnClickListener(view -> {
             binding.scanBtn.setEnabled(false);
             binding.scanBtn.setBackgroundColor(getResources().getColor(R.color.grey));
-            Intent resultIntent = new Intent(StartActivity.this,MainActivity.class);
+            Intent resultIntent = new Intent(StartActivity.this, ScanActivity.class);
             startActivity(resultIntent);
         });
     }

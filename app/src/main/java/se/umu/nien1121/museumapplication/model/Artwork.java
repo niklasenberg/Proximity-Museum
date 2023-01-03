@@ -3,16 +3,22 @@ package se.umu.nien1121.museumapplication.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import androidx.annotation.NonNull;
+
 import java.util.Arrays;
 
+/**
+ * Data class representing an artwork, based on PaintingJson from <a href="https://www.wikiart.org">WikiArt API</a>.
+ * Implements {@link Parcelable} to be sent between activities.
+ */
 public class Artwork implements Parcelable {
-    private String title;
-    private String artistName;
-    private String artistId;
-    private int completitionYear;
-    private String[] styles;
-    private String description;
-    private String image;
+    private final String title;
+    private final String artistName;
+    private final String artistId;
+    private final int completitionYear;
+    private final String[] styles;
+    private final String description;
+    private final String image;
 
     public Artwork(String title, String artistName, String artistId, int completitionYear, String[] styles, String description, String image) {
         this.title = title;
@@ -34,6 +40,7 @@ public class Artwork implements Parcelable {
         this.image = in.readString();
     }
 
+    //Getters
     public String getTitle() {
         return title;
     }
@@ -50,10 +57,6 @@ public class Artwork implements Parcelable {
         return completitionYear;
     }
 
-    public String[] getStyles() {
-        return styles;
-    }
-
     public String getDescription() {
         return description;
     }
@@ -63,10 +66,12 @@ public class Artwork implements Parcelable {
     }
 
     @Override
+    @NonNull
     public String toString() {
         return "Artwork{" + "title='" + title + '\'' + ", artistName='" + artistName + '\'' + ", completitionYear=" + completitionYear + ", styles=" + Arrays.toString(styles) + ", description='" + description + '\'' + ", image='" + image + '\'' + '}';
     }
 
+    //Parcelable implementations
     @Override
     public int describeContents() {
         return 0;
@@ -83,6 +88,9 @@ public class Artwork implements Parcelable {
         parcel.writeString(image);
     }
 
+    /**
+     * Companion object required to instantiate Parcel objects.
+     */
     public static final Parcelable.Creator<Artwork> CREATOR = new Parcelable.Creator<Artwork>() {
         public Artwork createFromParcel(Parcel in) {
             return new Artwork(in);

@@ -6,7 +6,6 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.graphics.Paint;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.ImageView;
 
 import se.umu.nien1121.museumapplication.databinding.ActivityArtworkBinding;
@@ -14,8 +13,13 @@ import se.umu.nien1121.museumapplication.model.Artwork;
 import se.umu.nien1121.museumapplication.utils.ActionBarHelper;
 import se.umu.nien1121.museumapplication.utils.DownloadImageTask;
 
+/**
+ * Acitivty useed to present the details of a specific {@link Artwork}.
+ */
 public class ArtworkActivity extends AppCompatActivity {
+    //Constants
     public static final String ARTWORK_EXTRA = "ARTWORK_EXTRA";
+
     private ActivityArtworkBinding binding;
     private Artwork artwork;
 
@@ -28,6 +32,9 @@ public class ArtworkActivity extends AppCompatActivity {
         loadUI();
     }
 
+    /**
+     * Helper method used to populate user interface with data from {@link Artwork}.
+     */
     private void loadUI() {
         ActionBarHelper.setActionBar(this, artwork.getTitle());
         binding.artworkNameText.setText(artwork.getTitle());
@@ -45,14 +52,19 @@ public class ArtworkActivity extends AppCompatActivity {
         makeImageClickable();
     }
 
+    /**
+     * Helper method which uses {@link DownloadImageTask} to fetch image of {@link Artwork}.
+     */
     private void setImage() {
         DownloadImageTask imageTask = new DownloadImageTask(binding.imageView);
         imageTask.execute(artwork.getImage());
     }
 
+    /**
+     * Helper method which makes ImageView clickable to enlarge.
+     */
     private void makeImageClickable() {
         binding.imageView.setOnClickListener(view -> {
-
             //View the image in full screen
             AlertDialog.Builder alert = new AlertDialog.Builder(ArtworkActivity.this);
             ImageView image = new ImageView(ArtworkActivity.this);
@@ -65,6 +77,9 @@ public class ArtworkActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Helper method for null-checking completion year of {@link Artwork}.
+     */
     private void setCompletionYear() {
         if (artwork.getCompletitionYear() != 0) {
             binding.artworkCompletionYearText.setText("Completion year: " + artwork.getCompletitionYear());
@@ -73,11 +88,13 @@ public class ArtworkActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Helper method for null-checking description of {@link Artwork}.
+     */
     private void setDescription() {
         if (artwork.getDescription() != null && !artwork.getDescription().isEmpty()) {
-
             //removes everything within the brackets.
-            String description = artwork.getDescription().replaceAll("\\[.*?\\]", "");
+            String description = artwork.getDescription().replaceAll("\\[.*?]", "");
             binding.artworkInfoText.setText(description);
         } else {
             binding.artworkInfoText.setText(R.string.description_not_found);

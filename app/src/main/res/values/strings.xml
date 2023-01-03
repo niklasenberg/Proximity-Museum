@@ -8,7 +8,7 @@
 
     //Main activity
     <string name="app_name">MuseumApplication</string>
-    <string name="scanning_text">Scanning for nearby artworks... </string>
+    <string name="scanning_text">Scanning for nearby artworks… </string>
 
     //Artwork activity
     <string name="description_text">Description</string>
@@ -18,7 +18,7 @@
     <string name="artwork_title_text">Artwork title</string>
     <string name="artwork_author_text">Author name</string>
     <string name="artwork_info_text">Info about artwork</string>
+    <string name="more_artworks_from_the_artist">More artworks from the artist</string>
 
 
-
-    </resources>
+</resources>

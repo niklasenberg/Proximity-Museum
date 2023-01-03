@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/rootRL"
-    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/painting">
+    android:background="@drawable/painting"
+    android:orientation="vertical">
 
     <TextView
         android:id="@+id/textView5"
@@ -56,8 +56,7 @@
         android:layout_marginBottom="71dp"
         android:fontFamily="sans-serif"
         android:text="@string/scanBtn_text"
-        android:textColor="#FFFFFF"
-        />
+        android:textColor="#FFFFFF" />
 
 
 </RelativeLayout>

@@ -16,10 +16,12 @@ the application will display relevant details about the piece,
 
 
 ## Screenshots of UI
+<p float="left">
+  <img src="https://user-images.githubusercontent.com/119488859/210562569-081b8137-f873-48da-9349-646acdb6ac38.png" width="200" height="430">
+  <img src="https://user-images.githubusercontent.com/119488859/210562592-4bf2ee73-d664-4778-a7d8-c10114177508.png" width="200" height="430">
+  <img src="https://user-images.githubusercontent.com/119488859/210562610-9180ad0f-3e23-42f7-a159-6bf1a6b69d66.png" width="200" height="430">
+</p>
 
-![App Screenshot](https://user-images.githubusercontent.com/119488859/210562569-081b8137-f873-48da-9349-646acdb6ac38.png)
-![App Screenshot](https://user-images.githubusercontent.com/119488859/210562592-4bf2ee73-d664-4778-a7d8-c10114177508.png)
-![App Screenshot](https://user-images.githubusercontent.com/119488859/210562610-9180ad0f-3e23-42f7-a159-6bf1a6b69d66.png)
 
 
 ## API Reference 

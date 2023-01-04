@@ -50,4 +50,4 @@ the application will display relevant details about the piece,
 | Color             | Hex                                                                |
 | ----------------- | ------------------------------------------------------------------ |
 | Header | ![#BE9A7B](https://via.placeholder.com/10/BE9A7B?text=+) #BE9A7B |
-| Background | ![#E9DDD2](https://via.placeholder.com/10/E9DDD2?text=+) #E9DDD2 |
+| Background | ![#E9DDD2](https://user-images.githubusercontent.com/119488859/210567734-d9715120-2775-44d3-a6c8-9e048d3ce74e.png)      #E9DDD2 |

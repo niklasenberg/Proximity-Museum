@@ -34,6 +34,7 @@ import se.umu.nien1121.museumapplication.model.Artwork;
 import se.umu.nien1121.museumapplication.model.Beacon;
 import se.umu.nien1121.museumapplication.utils.ActionBarHelper;
 import se.umu.nien1121.museumapplication.utils.JsonReader;
+import se.umu.nien1121.museumapplication.utils.NetworkProperties;
 
 /**
  * Activity used for scanning environment for {@link Beacon} objects.
@@ -253,7 +254,7 @@ public class ScanActivity extends AppCompatActivity {
      */
     private void fetchArtwork(Beacon beacon) {
         try {
-            String url = "http://85.230.192.244/painting?id=" + beacon.getId();
+            String url = "http://" + NetworkProperties.getInstance().gatewayIp +"/painting?id=" + beacon.getId();
             JSONObject artworkInfo = JsonReader.readJsonFromUrl(url);
             Gson gson = new Gson();
             beacon.setArtwork(gson.fromJson(artworkInfo.toString(), Artwork.class));

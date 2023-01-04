@@ -17,6 +17,7 @@ import se.umu.nien1121.museumapplication.databinding.ActivityArtworksFromArtistB
 import se.umu.nien1121.museumapplication.model.Artwork;
 import se.umu.nien1121.museumapplication.utils.ActionBarHelper;
 import se.umu.nien1121.museumapplication.utils.JsonReader;
+import se.umu.nien1121.museumapplication.utils.NetworkProperties;
 
 /**
  * Activity displaying {@link Artwork} objects made by a specific artist.
@@ -54,7 +55,7 @@ public class ArtworksFromArtistActivity extends AppCompatActivity {
             @Override
             protected JSONObject doInBackground(Integer... params) {
                 try {
-                    String url = "http://85.230.192.244/artist?id=" + artistId;
+                    String url = "http://" + NetworkProperties.getInstance().gatewayIp + "/artist?id=" + artistId;
                     return JsonReader.readJsonFromUrl(url);
                 } catch (Exception e) {
                     System.out.println(e.getMessage());

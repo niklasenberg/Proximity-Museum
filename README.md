@@ -49,5 +49,5 @@ the application will display relevant details about the piece,
 
 | Color             | Hex                                                                |
 | ----------------- | ------------------------------------------------------------------ |
-| Header | ![#BE9A7B](https://via.placeholder.com/10/BE9A7B?text=+) #BE9A7B |
+| Header | ![#BE9A7B](https://user-images.githubusercontent.com/119488859/210567740-e579ac86-e6ae-41f4-908c-b0338c88706b.png) #BE9A7B |
 | Background | ![#E9DDD2](https://user-images.githubusercontent.com/119488859/210567734-d9715120-2775-44d3-a6c8-9e048d3ce74e.png)      #E9DDD2 |
